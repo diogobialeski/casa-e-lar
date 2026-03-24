@@ -261,7 +261,20 @@ setStatus('🔄 conectando...');
 onValue(dbRef, function(snapshot){
   if(isSaving) return; // não sobrescreve enquanto está salvando
   var d = snapshot.val();
-  if(!d){setStatus('✦ pronto');if(fixos.length===0)addFixoSilent();if(extras.length===0)addExtraSilent();return;}
+  if(!d){
+    setStatus('✦ pronto');
+    if(fixos.length===0)addFixoSilent();
+    if(extras.length===0)addExtraSilent();
+    // Preenche renda e entradas padrão
+    document.getElementById('renda1').value='4900';
+    document.getElementById('renda2').value='6501.52';
+    document.getElementById('valeAlim').value='1101.52';
+    document.getElementById('valeTransp').value='0';
+    document.getElementById('ajuda').value='500';
+    document.getElementById('outrasEntradas').value='0';
+    calcFinance();
+    return;
+  }
   isLoading=true;
   if(d.tasks){tasks=d.tasks;renderTasks();}
   if(d.shopping){shopping=d.shopping;renderShopping();}
@@ -340,7 +353,21 @@ function renderShopping(){
 }
 
 // FIXOS
-function addFixoSilent(){fixos.push({id:fixoId++,desc:'',valor:'',forma:'Débito/Pix',pago:false});renderFixos();}
+function addFixoSilent(){
+  fixos=[
+    {id:fixoId++,desc:'Casa',valor:'586.97',forma:'Débito/Pix',pago:false},
+    {id:fixoId++,desc:'Condomínio',valor:'120.00',forma:'Débito/Pix',pago:false},
+    {id:fixoId++,desc:'Internet',valor:'100.00',forma:'Débito/Pix',pago:false},
+    {id:fixoId++,desc:'Água',valor:'0.00',forma:'Débito/Pix',pago:false},
+    {id:fixoId++,desc:'Energia',valor:'0.00',forma:'Débito/Pix',pago:false},
+    {id:fixoId++,desc:'Carro',valor:'950.00',forma:'Débito/Pix',pago:false},
+    {id:fixoId++,desc:'Advogado',valor:'0.00',forma:'Débito/Pix',pago:false},
+    {id:fixoId++,desc:'Festa do Ben',valor:'0.00',forma:'Crédito Parcelado',pago:false},
+    {id:fixoId++,desc:'Academia Diogo',valor:'150.00',forma:'Crédito À Vista',pago:false},
+    {id:fixoId++,desc:'Academia Tine',valor:'115.00',forma:'Crédito À Vista',pago:false},
+  ];
+  renderFixos();
+}
 window.addFixo=function(){fixos.push({id:fixoId++,desc:'',valor:'',forma:'Débito/Pix',pago:false});renderFixos();schedSave();};
 window.removeFixo=function(id){fixos=fixos.filter(function(f){return f.id!==id;});renderFixos();calcFinance();schedSave();};
 window.toggleFixoPago=function(id){fixos=fixos.map(function(f){return f.id===id?Object.assign({},f,{pago:!f.pago}):f;});renderFixos();schedSave();};
@@ -353,7 +380,16 @@ function renderFixos(){
 }
 
 // EXTRAS
-function addExtraSilent(){extras.push({id:extraId++,pessoa:'',desc:'',valor:'',forma:'Crédito À Vista',pago:false});renderExtras();}
+function addExtraSilent(){
+  extras=[
+    {id:extraId++,pessoa:'Tite',desc:'Cartão Nubank Tine',valor:'91.27',forma:'Crédito À Vista',pago:false},
+    {id:extraId++,pessoa:'Diogo',desc:'Cartão Nubank Diogo',valor:'1661.83',forma:'Crédito À Vista',pago:false},
+    {id:extraId++,pessoa:'Diogo',desc:'Cartão Inter',valor:'105.02',forma:'Crédito À Vista',pago:false},
+    {id:extraId++,pessoa:'Tite',desc:'Cartão Riachuelo',valor:'0.00',forma:'Crédito À Vista',pago:false},
+    {id:extraId++,pessoa:'Diogo',desc:'Cartão BLACK',valor:'2730.39',forma:'Crédito À Vista',pago:false},
+  ];
+  renderExtras();
+}
 window.addExtra=function(){extras.push({id:extraId++,pessoa:'',desc:'',valor:'',forma:'Crédito À Vista',pago:false});renderExtras();schedSave();};
 window.removeExtra=function(id){extras=extras.filter(function(e){return e.id!==id;});renderExtras();calcFinance();schedSave();};
 window.toggleExtraPago=function(id){extras=extras.map(function(e){return e.id===id?Object.assign({},e,{pago:!e.pago}):e;});renderExtras();schedSave();};
