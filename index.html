@@ -246,7 +246,7 @@ const db = getDatabase(app);
 const dbRef = ref(db, 'casaELar');
 
 var tasks=[], shopping=[], fixos=[], extras=[];
-var fixoId=1, extraId=1, saveTimer=null, isLoading=false;
+var fixoId=1, extraId=1, saveTimer=null, isLoading=false, isSaving=false;
 var formas=['Débito/Pix','Crédito À Vista','Crédito Parcelado'];
 
 function setStatus(msg){var el=document.getElementById('sync-status');if(el)el.textContent=msg;}
@@ -259,7 +259,7 @@ setStatus('🔄 conectando...');
 
 // Escuta mudanças em tempo real do Firebase
 onValue(dbRef, function(snapshot){
-  if(saveTimer) return; // não sobrescreve enquanto está salvando
+  if(isSaving) return; // não sobrescreve enquanto está salvando
   var d = snapshot.val();
   if(!d){setStatus('✦ pronto');if(fixos.length===0)addFixoSilent();if(extras.length===0)addExtraSilent();return;}
   isLoading=true;
@@ -286,6 +286,7 @@ window.schedSave=function(){
   setStatus('💾 salvando...');
   if(saveTimer)clearTimeout(saveTimer);
   saveTimer=setTimeout(function(){
+    isSaving=true;
     set(dbRef,{
       tasks:tasks, shopping:shopping, fixos:fixos, extras:extras,
       fin:{
@@ -298,8 +299,8 @@ window.schedSave=function(){
         reservaTenho:document.getElementById('reserva-tenho').value,
         reservaMeta:document.getElementById('reserva-meta').value
       }
-    }).then(function(){setStatus('✦ sincronizado');saveTimer=null;})
-      .catch(function(e){setStatus('⚠️ '+e.message);saveTimer=null;});
+    }).then(function(){setStatus('✦ sincronizado');saveTimer=null;isSaving=false;})
+      .catch(function(e){setStatus('⚠️ '+e.message);saveTimer=null;isSaving=false;});
   },1000);
 };
 
