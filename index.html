@@ -53,6 +53,17 @@
   .fin-row .inp{padding:8px;font-size:14px;}
   label.lbl{font-size:11px;color:#8A7055;margin-bottom:4px;display:block;}
   .sync-bar{text-align:center;font-size:11px;color:#8A7055;font-style:italic;padding:8px;}
+  .tab-btn{flex:1;padding:10px 4px;border:none;background:transparent;font-family:'Courier Prime',monospace;font-size:11px;color:#8A7055;cursor:pointer;border-bottom:2px solid transparent;}
+  .tab-btn.active{color:#8B4513;border-bottom:2px solid #8B4513;font-weight:700;}
+  .lan-row{display:flex;align-items:center;gap:8px;padding:8px 10px;margin-bottom:5px;background:#F2EDE4;border-radius:6px;border:1px solid #C4A97D;}
+  .lan-cat{font-size:10px;padding:2px 8px;border-radius:10px;background:#E8DFC8;color:#8B4513;border:1px solid #C4A97D;white-space:nowrap;flex-shrink:0;}
+  .cat-bar-wrap{margin-bottom:8px;}
+  .cat-bar-label{display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px;}
+  .cat-bar-bg{height:8px;background:#E8DFC8;border-radius:4px;}
+  .cat-bar-fill{height:100%;border-radius:4px;transition:width .4s;}
+  .hist-item{background:#EDE6D6;border:2px solid #C4A97D;border-radius:8px;margin-bottom:10px;overflow:hidden;}
+  .hist-header{display:flex;justify-content:space-between;align-items:center;padding:14px 16px;cursor:pointer;}
+  .hist-body{display:none;padding:0 16px 14px;}
 </style>
 </head>
 <body>
@@ -159,119 +170,145 @@
 <!-- FINANCEIRO -->
 
 <div id="page-finance" class="page">
-  <div class="page-header">
-    <button class="back-btn" onclick="goTo('home')"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M10 3L5 8l5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
-    <div style="flex:1;">
-      <div class="page-title" id="fin-titulo">Finanças</div>
-      <div id="fin-subtitulo" style="font-size:10px;color:#8A7055;"></div>
+  <div class="page-header" style="flex-direction:column;align-items:stretch;padding-bottom:0;">
+    <div style="display:flex;align-items:center;gap:12px;padding-bottom:10px;">
+      <button class="back-btn" onclick="goTo('home')"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M10 3L5 8l5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+      <div style="flex:1;">
+        <div class="page-title" id="fin-titulo">Finanças — Abril 2026</div>
+        <div style="font-size:10px;color:#8A7055;">mês atual</div>
+      </div>
+      <button onclick="fecharMes()" style="background:#8B4513;border:none;border-radius:6px;color:#FAF0E6;font-size:10px;padding:6px 10px;cursor:pointer;font-family:'Courier Prime',monospace;">Fechar Mês ✓</button>
     </div>
-    <button onclick="fecharMes()" style="background:#8B4513;border:none;border-radius:6px;color:#FAF0E6;font-size:10px;padding:6px 10px;cursor:pointer;font-family:'Courier Prime',monospace;white-space:nowrap;">Fechar Mês</button>
+    <!-- ABAS -->
+    <div style="display:flex;border-top:1px solid #C4A97D;">
+      <button class="tab-btn active" id="tb-mes" onclick="finTab('mes')">📋 Mês</button>
+      <button class="tab-btn" id="tb-lancamentos" onclick="finTab('lancamentos')">💳 Lançamentos</button>
+      <button class="tab-btn" id="tb-grafico" onclick="finTab('grafico')">📊 Gráfico</button>
+      <button class="tab-btn" id="tb-historico" onclick="finTab('historico')">📁 Histórico</button>
+    </div>
   </div>
-
-  <!-- ABAS -->
-
-  <div style="background:#EDE6D6;border-bottom:2px solid #C4A97D;display:flex;gap:0;position:sticky;top:57px;z-index:9;">
-    <button id="tab-btn-mes" onclick="switchTab('mes')" style="flex:1;padding:10px 6px;border:none;border-bottom:2px solid #8B4513;background:transparent;font-family:'Courier Prime',monospace;font-size:11px;color:#8B4513;cursor:pointer;font-weight:700;">📋 Mês</button>
-    <button id="tab-btn-grafico" onclick="switchTab('grafico')" style="flex:1;padding:10px 6px;border:none;border-bottom:2px solid transparent;background:transparent;font-family:'Courier Prime',monospace;font-size:11px;color:#8A7055;cursor:pointer;">📊 Gráfico</button>
-    <button id="tab-btn-historico" onclick="switchTab('historico')" style="flex:1;padding:10px 6px;border:none;border-bottom:2px solid transparent;background:transparent;font-family:'Courier Prime',monospace;font-size:11px;color:#8A7055;cursor:pointer;">📁 Histórico</button>
-  </div>
-
-  <!-- ABA: MÊS ATUAL -->
-
+  <!-- ABA MÊS -->
   <div id="tab-mes" style="width:100%;padding:16px 16px 80px;">
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:14px;">
+      <div style="background:#EDE6D6;border:1px solid #C4A97D;border-radius:8px;padding:10px 6px;text-align:center;">
+        <div style="font-size:9px;color:#8A7055;text-transform:uppercase;letter-spacing:.08em;margin-bottom:3px;">Renda</div>
+        <div id="resumo-renda" style="font-size:13px;font-weight:700;color:#5C7A3E;">R$ 0</div>
+      </div>
+      <div style="background:#EDE6D6;border:1px solid #C4A97D;border-radius:8px;padding:10px 6px;text-align:center;">
+        <div style="font-size:9px;color:#8A7055;text-transform:uppercase;letter-spacing:.08em;margin-bottom:3px;">Gastos</div>
+        <div id="resumo-gastos" style="font-size:13px;font-weight:700;color:#9B2335;">R$ 0</div>
+      </div>
+      <div style="background:#EDE6D6;border:1px solid #C4A97D;border-radius:8px;padding:10px 6px;text-align:center;">
+        <div style="font-size:9px;color:#8A7055;text-transform:uppercase;letter-spacing:.08em;margin-bottom:3px;">Saldo</div>
+        <div id="resumo-saldo" style="font-size:13px;font-weight:700;">R$ 0</div>
+      </div>
+    </div>
+    <div class="section-card">
+      <div class="section-title">💰 Renda do Mês</div>
+      <div class="grid2" style="margin-bottom:10px;">
+        <div><label class="lbl">Diogo (R$)</label><input class="inp" type="number" placeholder="0,00" id="renda1" oninput="calcFinance();schedSave()"></div>
+        <div><label class="lbl">Tite (R$)</label><input class="inp" type="number" placeholder="0,00" id="renda2" oninput="calcFinance();schedSave()"></div>
+      </div>
+      <div style="font-size:11px;color:#8A7055;margin-bottom:6px;text-transform:uppercase;letter-spacing:.06em;">Benefícios</div>
+      <div class="grid2">
+        <div><label class="lbl">Vale Alimentação</label><input class="inp" type="number" placeholder="0,00" id="valeAlim" oninput="calcFinance();schedSave()"></div>
+        <div><label class="lbl">Vale Transporte</label><input class="inp" type="number" placeholder="0,00" id="valeTransp" oninput="calcFinance();schedSave()"></div>
+        <div><label class="lbl">Ajuda Roberto</label><input class="inp" type="number" placeholder="0,00" id="ajuda" oninput="calcFinance();schedSave()"></div>
+        <div><label class="lbl">Outros</label><input class="inp" type="number" placeholder="0,00" id="outrasEntradas" oninput="calcFinance();schedSave()"></div>
+      </div>
+      <div style="margin-top:10px;font-size:13px;color:#8A7055;text-align:right;">Total: <strong id="total-renda" style="color:#5C7A3E;">R$ 0,00</strong></div>
+    </div>
+    <div class="section-card">
+      <div class="section-title">📌 Gastos Fixos</div>
+      <div id="fixos-list"></div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px;">
+        <button class="add-line-btn" onclick="addFixo()">+ linha</button>
+        <span style="font-size:13px;color:#8A7055;">Total: <strong id="total-fixos" style="color:#8B4513;">R$ 0,00</strong></span>
+      </div>
+    </div>
+    <div class="section-card">
+      <div class="section-title">🛍 Gastos Extras (Cartões)</div>
+      <div id="extras-list"></div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px;">
+        <button class="add-line-btn" onclick="addExtra()">+ linha</button>
+        <span style="font-size:13px;color:#8A7055;">Total: <strong id="total-extras" style="color:#8B4513;">R$ 0,00</strong></span>
+      </div>
+    </div>
+    <div class="section-card">
+      <div class="section-title">📋 Resultado</div>
+      <div class="grid2" style="margin-bottom:10px;">
+        <div class="result-box"><div class="result-label">Total Gastos</div><div class="result-val" id="res-total" style="color:#9B2335;">R$ 0,00</div></div>
+        <div class="result-box"><div class="result-label">Débito/Pix</div><div class="result-val" id="res-debito">R$ 0,00</div></div>
+        <div class="result-box"><div class="result-label">Créd. Vista</div><div class="result-val" id="res-cred-vista">R$ 0,00</div></div>
+        <div class="result-box"><div class="result-label">Créd. Parc.</div><div class="result-val" id="res-cred-parc">R$ 0,00</div></div>
+      </div>
+      <div id="saldo-box" class="saldo-box" style="background:#EAF4E8;border:2px solid #5C7A3E;">
+        <span style="font-size:13px;color:#8A7055;font-weight:700;">Restante do mês</span>
+        <span id="res-saldo" style="font-family:'Playfair Display',serif;font-size:22px;font-weight:700;color:#5C7A3E;">R$ 0,00</span>
+      </div>
+    </div>
+    <div class="section-card">
+      <div class="section-title">🏦 Reserva</div>
+      <div class="grid2">
+        <div><label class="lbl">Quanto tenho? (R$)</label><input class="inp" type="number" placeholder="0,00" id="reserva-tenho" oninput="calcReserva();schedSave()"></div>
+        <div><label class="lbl">Quanto quero ter? (R$)</label><input class="inp" type="number" placeholder="0,00" id="reserva-meta" oninput="calcReserva();schedSave()"></div>
+      </div>
+      <div id="reserva-progress-section" style="display:none;margin-top:14px;">
+        <div style="display:flex;justify-content:space-between;font-size:11px;color:#8A7055;margin-bottom:6px;">
+          <span id="reserva-tenho-label">R$ 0,00</span><span id="reserva-meta-label">meta: R$ 0,00</span>
+        </div>
+        <div style="height:8px;background:#E8DFC8;border-radius:4px;border:1px solid #C4A97D;">
+          <div id="reserva-bar" style="height:100%;background:#5C7A3E;border-radius:4px;transition:width .3s;width:0%"></div>
+        </div>
+        <div id="reserva-msg" style="margin-top:8px;font-size:12px;text-align:right;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ABA LANÇAMENTOS -->
+
+  <div id="tab-lancamentos" style="display:none;width:100%;padding:16px 16px 80px;">
+    <div class="section-card">
+      <div class="section-title">💳 Adicionar Gasto</div>
+      <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px;">
+        <input class="inp" id="lan-desc" placeholder="Descrição (ex: Gasolina)" style="flex:1;min-width:140px;">
+        <input class="inp" id="lan-val" type="number" placeholder="R$" style="width:80px;flex-shrink:0;">
+      </div>
+      <div style="display:flex;gap:8px;margin-bottom:10px;">
+        <select class="inp" id="lan-cat" style="flex:1;">
+          <option>Alimentação</option>
+          <option>Gasolina</option>
+          <option>Mercado</option>
+          <option>iFood</option>
+          <option>Saúde</option>
+          <option>Compras</option>
+          <option>Estacionamento</option>
+          <option>Assinaturas</option>
+          <option>Outros</option>
+        </select>
+        <input class="inp" id="lan-data" placeholder="Data (04/04)" style="width:90px;flex-shrink:0;">
+      </div>
+      <button onclick="addLancamento()" style="background:#8B4513;border:none;border-radius:6px;color:#FAF0E6;font-size:14px;font-weight:700;padding:12px;width:100%;cursor:pointer;font-family:'Courier Prime',monospace;">+ Adicionar</button>
+    </div>
 
 ```
-<!-- Resumo rápido -->
-<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:14px;">
-  <div style="background:#EDE6D6;border:1px solid #C4A97D;border-radius:8px;padding:10px 6px;text-align:center;">
-    <div style="font-size:9px;color:#8A7055;text-transform:uppercase;letter-spacing:.08em;margin-bottom:3px;">Renda</div>
-    <div id="resumo-renda" style="font-size:13px;font-weight:700;color:#5C7A3E;">R$ 0</div>
-  </div>
-  <div style="background:#EDE6D6;border:1px solid #C4A97D;border-radius:8px;padding:10px 6px;text-align:center;">
-    <div style="font-size:9px;color:#8A7055;text-transform:uppercase;letter-spacing:.08em;margin-bottom:3px;">Gastos</div>
-    <div id="resumo-gastos" style="font-size:13px;font-weight:700;color:#9B2335;">R$ 0</div>
-  </div>
-  <div style="background:#EDE6D6;border:1px solid #C4A97D;border-radius:8px;padding:10px 6px;text-align:center;">
-    <div style="font-size:9px;color:#8A7055;text-transform:uppercase;letter-spacing:.08em;margin-bottom:3px;">Saldo</div>
-    <div id="resumo-saldo" style="font-size:13px;font-weight:700;">R$ 0</div>
-  </div>
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+  <div style="font-size:13px;color:#8A7055;">Total lançado:</div>
+  <div id="lan-total" style="font-family:'Playfair Display',serif;font-size:18px;font-weight:700;color:#9B2335;">R$ 0,00</div>
 </div>
 
-<div class="section-card">
-  <div class="section-title">💰 Renda do Mês</div>
-  <div class="grid2">
-    <div><label class="lbl">Diogo (R$)</label><input class="inp" type="number" placeholder="0,00" id="renda1" oninput="calcFinance();schedSave()"></div>
-    <div><label class="lbl">Tine (R$)</label><input class="inp" type="number" placeholder="0,00" id="renda2" oninput="calcFinance();schedSave()"></div>
-  </div>
-  <div style="font-size:11px;color:#8A7055;margin:10px 0 6px;text-transform:uppercase;letter-spacing:.06em;">Benefícios</div>
-  <div class="grid2">
-    <div><label class="lbl">Vale Alimentação</label><input class="inp" type="number" placeholder="0,00" id="valeAlim" oninput="calcFinance();schedSave()"></div>
-    <div><label class="lbl">Vale Transporte</label><input class="inp" type="number" placeholder="0,00" id="valeTransp" oninput="calcFinance();schedSave()"></div>
-    <div><label class="lbl">Ajuda</label><input class="inp" type="number" placeholder="0,00" id="ajuda" oninput="calcFinance();schedSave()"></div>
-    <div><label class="lbl">Outros</label><input class="inp" type="number" placeholder="0,00" id="outrasEntradas" oninput="calcFinance();schedSave()"></div>
-  </div>
-  <div style="margin-top:10px;font-size:13px;color:#8A7055;text-align:right;">Total: <strong id="total-renda" style="color:#5C7A3E;">R$ 0,00</strong></div>
-</div>
-
-<div class="section-card">
-  <div class="section-title">📌 Gastos Fixos</div>
-  <div id="fixos-list"></div>
-  <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px;">
-    <button class="add-line-btn" onclick="addFixo()">+ linha</button>
-    <span style="font-size:13px;color:#8A7055;">Total: <strong id="total-fixos" style="color:#8B4513;">R$ 0,00</strong></span>
-  </div>
-</div>
-
-<div class="section-card">
-  <div class="section-title">🛍 Gastos Extras</div>
-  <div id="extras-list"></div>
-  <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px;">
-    <button class="add-line-btn" onclick="addExtra()">+ linha</button>
-    <span style="font-size:13px;color:#8A7055;">Total: <strong id="total-extras" style="color:#8B4513;">R$ 0,00</strong></span>
-  </div>
-</div>
-
-<div class="section-card">
-  <div class="section-title">📋 Resultado</div>
-  <div class="grid2" style="margin-bottom:10px;">
-    <div class="result-box"><div class="result-label">Total de Gastos</div><div class="result-val" id="res-total" style="color:#9B2335;">R$ 0,00</div></div>
-    <div class="result-box"><div class="result-label">Débito/Pix</div><div class="result-val" id="res-debito">R$ 0,00</div></div>
-    <div class="result-box"><div class="result-label">Créd. À Vista</div><div class="result-val" id="res-cred-vista">R$ 0,00</div></div>
-    <div class="result-box"><div class="result-label">Créd. Parcelado</div><div class="result-val" id="res-cred-parc">R$ 0,00</div></div>
-  </div>
-  <div id="saldo-box" class="saldo-box" style="background:#EAF4E8;border:2px solid #5C7A3E;">
-    <span style="font-size:13px;color:#8A7055;font-weight:700;">Restante do mês</span>
-    <span id="res-saldo" style="font-family:'Playfair Display',serif;font-size:22px;font-weight:700;color:#5C7A3E;">R$ 0,00</span>
-  </div>
-</div>
-
-<div class="section-card">
-  <div class="section-title">🏦 Reserva</div>
-  <div class="grid2">
-    <div><label class="lbl">Quanto tenho? (R$)</label><input class="inp" type="number" placeholder="0,00" id="reserva-tenho" oninput="calcReserva();schedSave()"></div>
-    <div><label class="lbl">Quanto quero ter? (R$)</label><input class="inp" type="number" placeholder="0,00" id="reserva-meta" oninput="calcReserva();schedSave()"></div>
-  </div>
-  <div id="reserva-progress-section" style="display:none;margin-top:14px;">
-    <div style="display:flex;justify-content:space-between;font-size:11px;color:#8A7055;margin-bottom:6px;">
-      <span id="reserva-tenho-label">R$ 0,00</span><span id="reserva-meta-label">meta: R$ 0,00</span>
-    </div>
-    <div style="height:8px;background:#E8DFC8;border-radius:4px;border:1px solid #C4A97D;">
-      <div id="reserva-bar" style="height:100%;background:#5C7A3E;border-radius:4px;transition:width .3s;width:0%"></div>
-    </div>
-    <div id="reserva-msg" style="margin-top:8px;font-size:12px;text-align:right;"></div>
-  </div>
-</div>
+<div id="lancamentos-lista"></div>
 ```
 
   </div>
 
-  <!-- ABA: GRÁFICO -->
+  <!-- ABA GRÁFICO -->
 
   <div id="tab-grafico" style="display:none;width:100%;padding:16px 16px 80px;">
     <div class="section-card">
-      <div class="section-title">🍩 Distribuição dos Gastos</div>
-      <div style="display:flex;align-items:center;gap:16px;margin-bottom:16px;">
-        <canvas id="grafico-rosca" width="120" height="120" style="flex-shrink:0;"></canvas>
+      <div class="section-title">🍩 Por Forma de Pagamento</div>
+      <div style="display:flex;align-items:center;gap:16px;margin-bottom:14px;">
+        <canvas id="grafico-rosca" width="110" height="110" style="flex-shrink:0;"></canvas>
         <div id="grafico-legenda" style="flex:1;font-size:12px;line-height:2;"></div>
       </div>
       <div>
@@ -279,30 +316,26 @@
           <span>% do salário comprometido</span>
           <span id="pct-salario" style="font-weight:700;color:#8B4513;">0%</span>
         </div>
-        <div style="height:10px;background:#E8DFC8;border-radius:5px;border:1px solid #C4A97D;">
-          <div id="pct-bar" style="height:100%;background:#C17F3A;border-radius:5px;transition:width .3s;width:0%"></div>
+        <div style="height:8px;background:#E8DFC8;border-radius:4px;border:1px solid #C4A97D;">
+          <div id="pct-bar" style="height:100%;background:#C17F3A;border-radius:4px;transition:width .3s;width:0%"></div>
         </div>
       </div>
     </div>
 
 ```
 <div class="section-card">
-  <div class="section-title">📊 Detalhamento</div>
-  <div id="grafico-detalhes"></div>
-</div>
-
-<div class="section-card" id="comparativo-card" style="display:none;">
-  <div class="section-title">📈 vs Mês Anterior</div>
-  <div id="comparativo-content"></div>
+  <div class="section-title">📊 Gastos por Categoria</div>
+  <canvas id="grafico-cats" width="100%" height="200" style="width:100%;margin-bottom:10px;"></canvas>
+  <div id="cats-legenda"></div>
 </div>
 ```
 
   </div>
 
-  <!-- ABA: HISTÓRICO -->
+  <!-- ABA HISTÓRICO -->
 
   <div id="tab-historico" style="display:none;width:100%;padding:16px 16px 80px;">
-    <div id="historico-vazio" style="text-align:center;color:#8A7055;font-size:13px;margin-top:60px;font-style:italic;">Nenhum mês fechado ainda.<br><br>Use o botão <strong>Fechar Mês</strong> para arquivar.</div>
+    <div id="historico-vazio" style="text-align:center;color:#8A7055;font-size:13px;margin-top:60px;font-style:italic;">Nenhum mês fechado ainda.<br><br>Use <strong>Fechar Mês ✓</strong> para arquivar.</div>
     <div id="historico-lista"></div>
   </div>
 </div>
@@ -358,7 +391,7 @@ onValue(dbRef, function(snapshot){
     if(fi.reservaMeta)document.getElementById('reserva-meta').value=fi.reservaMeta;
     calcFinance();calcReserva();
   }
-  if(d.historico) historico=d.historico; else historico=[];
+  if(window._finLoad) window._finLoad(d);
   updateHomeSummaries();
   setStatus('✦ sincronizado');
   isLoading=false;
@@ -507,86 +540,115 @@ function updateHomeSummaries(){
   document.getElementById('shopping-progress-bar').style.width=st>0?(sd/st*100)+'%':'0%';
 }
 
-// ─── TABS ────────────────────────────────────────────────────────────────────
-var currentTab = 'mes';
-window.switchTab = function(tab) {
-  currentTab = tab;
-  ['mes','grafico','historico'].forEach(function(t){
-    document.getElementById('tab-'+t).style.display = t===tab ? 'block' : 'none';
-    var btn = document.getElementById('tab-btn-'+t);
-    btn.style.borderBottom = t===tab ? '2px solid #8B4513' : '2px solid transparent';
-    btn.style.color = t===tab ? '#8B4513' : '#8A7055';
-    btn.style.fontWeight = t===tab ? '700' : '400';
-  });
-  if(tab==='grafico') { setTimeout(desenharGrafico, 50); renderDetalhes(); }
-  if(tab==='historico') renderHistorico();
-};
-
-// ─── MÊS ATUAL ───────────────────────────────────────────────────────────────
+// ═══ FINANCE EXTRAS ══════════════════════════════════════════════════════════
 var MESES_NOME=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
-function getNomeMes(){ var d=new Date(); return MESES_NOME[d.getMonth()]+' '+d.getFullYear(); }
+var historico=[], lancamentos=[];
+var currentFinTab='mes';
+var CAT_CORES={'Alimentação':'#8B4513','Gasolina':'#C17F3A','Mercado':'#5C7A3E','iFood':'#9B2335','Saúde':'#6B7A8D','Compras':'#A0522D','Estacionamento':'#8A7055','Assinaturas':'#7070A0','Outros':'#C4A97D'};
 
-// Set month label on load
-(function(){
-  var m = getNomeMes();
-  var t = document.getElementById('fin-titulo');
-  var s = document.getElementById('fin-subtitulo');
-  if(t) t.textContent = m;
-  if(s) s.textContent = 'mês atual';
-})();
+function getNomeMes(){var d=new Date();return MESES_NOME[d.getMonth()]+' '+d.getFullYear();}
 
-// ─── FECHAR MÊS ──────────────────────────────────────────────────────────────
-window.fecharMes = function() {
-  var mes = getNomeMes();
-  if(!confirm('Fechar '+mes+' e arquivar no histórico?')) return;
-  // Captura snapshot do mês
-  var r1=parseFloat(document.getElementById('renda1').value)||0;
-  var r2=parseFloat(document.getElementById('renda2').value)||0;
-  var va=parseFloat(document.getElementById('valeAlim').value)||0;
-  var vt=parseFloat(document.getElementById('valeTransp').value)||0;
-  var aj=parseFloat(document.getElementById('ajuda').value)||0;
-  var ou=parseFloat(document.getElementById('outrasEntradas').value)||0;
-  var renda = r1+r2+va+vt+aj+ou;
-  var tF=fixos.reduce(function(s,f){return s+(parseFloat(f.valor)||0);},0);
-  var tX=extras.reduce(function(s,e){return s+(parseFloat(e.valor)||0);},0);
-  var gastos = tF+tX;
-  var snap = {
-    mes: mes, renda: renda, gastos: gastos, saldo: renda-gastos,
-    fixos: JSON.parse(JSON.stringify(fixos)),
-    extras: JSON.parse(JSON.stringify(extras)),
-    fin: {
-      renda1: document.getElementById('renda1').value,
-      renda2: document.getElementById('renda2').value,
-      valeAlim: document.getElementById('valeAlim').value,
-      valeTransp: document.getElementById('valeTransp').value,
-      ajuda: document.getElementById('ajuda').value,
-      outrasEntradas: document.getElementById('outrasEntradas').value,
-    },
-    fechadoEm: new Date().toLocaleDateString('pt-BR')
-  };
-  if(!historico) historico = [];
-  historico.unshift(snap);
-  // Reset para novo mês mantendo fixos padrão
-  addFixoSilent(); addExtraSilent();
-  ['renda1','renda2','valeAlim','valeTransp','ajuda','outrasEntradas','reserva-tenho','reserva-meta'].forEach(function(id){
-    document.getElementById(id).value='';
+// Init month label
+(function(){var t=document.getElementById('fin-titulo');if(t)t.textContent='Finanças — '+getNomeMes();})();
+
+// ─── TABS ─────────────────────────────────────────────────────────────────────
+window.finTab=function(tab){
+  currentFinTab=tab;
+  ['mes','lancamentos','grafico','historico'].forEach(function(t){
+    var el=document.getElementById('tab-'+t);
+    var btn=document.getElementById('tb-'+t);
+    if(el) el.style.display=t===tab?'block':'none';
+    if(btn){btn.classList.toggle('active',t===tab);}
   });
-  document.getElementById('renda1').value='4900';
-  document.getElementById('renda2').value='6501.52';
-  document.getElementById('valeAlim').value='1101.52';
-  document.getElementById('ajuda').value='500';
-  calcFinance(); calcReserva();
-  schedSave();
-  alert('✦ '+mes+' arquivado no Histórico!');
-  switchTab('historico');
+  if(tab==='grafico'){setTimeout(function(){desenharRosca();desenharCats();},50);}
+  if(tab==='historico') renderHistorico();
+  if(tab==='lancamentos') renderLancamentos();
 };
 
-// ─── GRÁFICO ROSCA ───────────────────────────────────────────────────────────
-function desenharGrafico(){
-  var canvas = document.getElementById('grafico-rosca');
+// ─── LANÇAMENTOS ──────────────────────────────────────────────────────────────
+// Pre-fill with card data from screenshots
+var defaultLancamentos=[
+  {id:1,data:'06/04',desc:'Drogaria Achei',valor:84.98,cat:'Saúde'},
+  {id:2,data:'06/04',desc:'Park Auto Posto',valor:30.00,cat:'Gasolina'},
+  {id:3,data:'05/04',desc:'Posto Pontao',valor:30.00,cat:'Gasolina'},
+  {id:4,data:'05/04',desc:'Atacadão Dia a Dia',valor:75.52,cat:'Mercado'},
+  {id:5,data:'05/04',desc:'Applecombill',valor:4.50,cat:'Assinaturas'},
+  {id:6,data:'05/04',desc:'Panificadora Padre Cic',valor:26.48,cat:'Alimentação'},
+  {id:7,data:'05/04',desc:'NK Comercio Aliment',valor:19.96,cat:'Alimentação'},
+  {id:8,data:'04/04',desc:'Park Auto Posto',valor:30.00,cat:'Gasolina'},
+  {id:9,data:'04/04',desc:'Ultrabox',valor:188.78,cat:'Outros'},
+  {id:10,data:'04/04',desc:'FPX',valor:195.46,cat:'Outros'},
+  {id:11,data:'04/04',desc:'Lojas Americanas',valor:44.97,cat:'Compras'},
+  {id:12,data:'04/04',desc:'Shopping Sul',valor:9.50,cat:'Compras'},
+  {id:13,data:'04/04',desc:'MC Comercio Produto',valor:17.00,cat:'Alimentação'},
+  {id:14,data:'04/04',desc:'Cacau Show (1/2)',valor:103.47,cat:'Compras'},
+  {id:15,data:'04/04',desc:'Werdinni Produtos',valor:70.00,cat:'Compras'},
+  {id:16,data:'04/04',desc:'Preco Fixo Bijuterias',valor:20.00,cat:'Compras'},
+  {id:17,data:'04/04',desc:'Preco Fixo Utilidades',valor:97.86,cat:'Compras'},
+  {id:18,data:'04/04',desc:'Mercearia',valor:3.50,cat:'Alimentação'},
+  {id:19,data:'03/04',desc:'NK Comercio Aliment',valor:8.99,cat:'Alimentação'},
+  {id:20,data:'03/04',desc:'IFD Samuel (iFood)',valor:79.97,cat:'iFood'},
+  {id:21,data:'03/04',desc:'NK Comercio Aliment',valor:37.96,cat:'Alimentação'},
+  {id:22,data:'03/04',desc:'NK Comercio Aliment',valor:27.91,cat:'Alimentação'},
+  {id:23,data:'02/04',desc:'Cascol Combustiveis',valor:30.00,cat:'Gasolina'},
+  {id:24,data:'02/04',desc:'Allpark Estacionamento',valor:6.50,cat:'Estacionamento'},
+  {id:25,data:'02/04',desc:'Americanas SA',valor:22.47,cat:'Compras'},
+  {id:26,data:'02/04',desc:'Posto de Combustiveis',valor:40.00,cat:'Gasolina'},
+  {id:27,data:'01/04',desc:'Allpark Estacionamento',valor:6.50,cat:'Estacionamento'},
+  {id:28,data:'09/03',desc:'Wi Clinica (2/2)',valor:82.50,cat:'Saúde'},
+  {id:29,data:'09/03',desc:'Shopee Lamourfashion (2/2)',valor:54.95,cat:'Compras'},
+  {id:30,data:'03/04',desc:'Pao de Acucar',valor:37.71,cat:'Mercado'},
+  {id:31,data:'03/04',desc:'Mercadolivre Stiautop (1/2)',valor:49.57,cat:'Compras'},
+  {id:32,data:'02/04',desc:'Recarga de celular',valor:60.00,cat:'Outros'},
+  {id:33,data:'02/04',desc:'Valentine Veras Silva (4/4)',valor:283.56,cat:'Outros'},
+];
+var lanId=100;
+
+window.addLancamento=function(){
+  var desc=document.getElementById('lan-desc').value.trim();
+  var val=parseFloat(document.getElementById('lan-val').value)||0;
+  var cat=document.getElementById('lan-cat').value;
+  var data=document.getElementById('lan-data').value.trim()||'';
+  if(!desc||!val)return;
+  lancamentos.unshift({id:lanId++,data:data,desc:desc,valor:val,cat:cat});
+  document.getElementById('lan-desc').value='';
+  document.getElementById('lan-val').value='';
+  renderLancamentos();
+  schedSave();
+};
+
+window.removeLancamento=function(id){
+  lancamentos=lancamentos.filter(function(l){return l.id!==id;});
+  renderLancamentos();
+  schedSave();
+};
+
+function renderLancamentos(){
+  var lista=document.getElementById('lancamentos-lista');
+  var all=[].concat(lancamentos);
+  var total=all.reduce(function(s,l){return s+l.valor;},0);
+  var el=document.getElementById('lan-total');
+  if(el) el.textContent=fmt(total);
+  if(!lista) return;
+  if(!all.length){lista.innerHTML='<div style="text-align:center;color:#8A7055;font-size:13px;margin-top:30px;font-style:italic;">Nenhum lançamento ainda.</div>';return;}
+  lista.innerHTML=all.map(function(l){
+    var cor=CAT_CORES[l.cat]||'#C4A97D';
+    return '<div class="lan-row">'+
+      (l.data?'<span style="font-size:10px;color:#8A7055;flex-shrink:0;width:36px;">'+escHtml(l.data)+'</span>':'')+
+      '<span style="flex:1;font-size:13px;color:#2C1A0E;">'+escHtml(l.desc)+'</span>'+
+      '<span class="lan-cat" style="background:'+cor+'22;color:'+cor+';border-color:'+cor+'44;">'+escHtml(l.cat)+'</span>'+
+      '<span style="font-size:13px;font-weight:700;color:#8B4513;margin-left:8px;flex-shrink:0;">'+fmt(l.valor)+'</span>'+
+      '<button onclick="removeLancamento('+l.id+')" style="background:none;border:none;color:#8A7055;cursor:pointer;opacity:.5;padding:0 4px;font-size:14px;">✕</button>'+
+    '</div>';
+  }).join('');
+}
+
+// ─── GRÁFICO ROSCA ────────────────────────────────────────────────────────────
+function desenharRosca(){
+  var canvas=document.getElementById('grafico-rosca');
   if(!canvas) return;
-  var ctx = canvas.getContext('2d');
-  var W=canvas.width, H=canvas.height, cx=W/2, cy=H/2, r=46, ri=20;
+  var ctx=canvas.getContext('2d');
+  var W=canvas.width,H=canvas.height,cx=W/2,cy=H/2,r=42,ri=18;
   ctx.clearRect(0,0,W,H);
   var todos=[].concat(fixos,extras);
   var deb=todos.filter(function(i){return i.forma==='Débito/Pix';}).reduce(function(s,i){return s+(parseFloat(i.valor)||0);},0);
@@ -594,109 +656,102 @@ function desenharGrafico(){
   var cp=todos.filter(function(i){return i.forma==='Crédito Parcelado';}).reduce(function(s,i){return s+(parseFloat(i.valor)||0);},0);
   var dados=[{label:'Débito/Pix',val:deb,cor:'#8B4513'},{label:'Créd. Vista',val:cv,cor:'#C17F3A'},{label:'Créd. Parc.',val:cp,cor:'#E8A87C'}];
   var total=deb+cv+cp;
-  if(total<=0){
-    ctx.beginPath();ctx.arc(cx,cy,r,0,Math.PI*2);ctx.strokeStyle='#C4A97D';ctx.lineWidth=ri;ctx.stroke();
-    document.getElementById('grafico-legenda').innerHTML='<span style="color:#8A7055;font-style:italic;">Sem gastos</span>';
-    return;
-  }
+  if(total<=0){ctx.beginPath();ctx.arc(cx,cy,r,0,Math.PI*2);ctx.strokeStyle='#C4A97D';ctx.lineWidth=ri;ctx.stroke();document.getElementById('grafico-legenda').innerHTML='<span style="color:#8A7055;font-style:italic;">Sem gastos</span>';return;}
   var start=-Math.PI/2;
-  dados.forEach(function(d){
-    if(d.val<=0) return;
-    var slice=(d.val/total)*Math.PI*2;
-    ctx.beginPath();ctx.arc(cx,cy,r,start,start+slice);
-    ctx.strokeStyle=d.cor;ctx.lineWidth=ri;ctx.stroke();
-    start+=slice;
-  });
-  var leg=document.getElementById('grafico-legenda');
-  leg.innerHTML=dados.filter(function(d){return d.val>0;}).map(function(d){
-    var pct=Math.round((d.val/total)*100);
-    return '<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">'+
-      '<div style="width:10px;height:10px;border-radius:50%;background:'+d.cor+';flex-shrink:0;"></div>'+
-      '<span>'+d.label+'</span>'+
-      '<span style="margin-left:auto;color:#8A7055;">'+pct+'% · '+fmt(d.val)+'</span>'+
-    '</div>';
-  }).join('');
-}
-
-function renderDetalhes(){
-  var r1=parseFloat(document.getElementById('renda1').value)||0;
-  var r2=parseFloat(document.getElementById('renda2').value)||0;
-  var tR=r1+r2;
-  var tF=fixos.reduce(function(s,f){return s+(parseFloat(f.valor)||0);},0);
-  var tX=extras.reduce(function(s,e){return s+(parseFloat(e.valor)||0);},0);
-  var tG=tF+tX;
-  var pct=tR>0?Math.min(Math.round((tG/tR)*100),100):0;
+  dados.forEach(function(d){if(d.val<=0)return;var sl=(d.val/total)*Math.PI*2;ctx.beginPath();ctx.arc(cx,cy,r,start,start+sl);ctx.strokeStyle=d.cor;ctx.lineWidth=ri;ctx.stroke();start+=sl;});
+  var r1=parseFloat(document.getElementById('renda1').value||0)+parseFloat(document.getElementById('renda2').value||0);
+  var pct=r1>0?Math.min(Math.round((total/r1)*100),100):0;
   document.getElementById('pct-salario').textContent=pct+'%';
   document.getElementById('pct-bar').style.width=pct+'%';
   document.getElementById('pct-bar').style.background=pct>90?'#9B2335':pct>70?'#C17F3A':'#5C7A3E';
-  // Detalhamento por categoria
-  var det=document.getElementById('grafico-detalhes');
-  var itens=[
-    {label:'Gastos Fixos',val:tF,total:tG,cor:'#8B4513'},
-    {label:'Gastos Extras',val:tX,total:tG,cor:'#C17F3A'},
-  ];
-  // Top gastos extras por pessoa
-  var porPessoa={};
-  extras.forEach(function(e){
-    var p=e.pessoa||'Outros';
-    if(!porPessoa[p]) porPessoa[p]=0;
-    porPessoa[p]+=(parseFloat(e.valor)||0);
-  });
-  det.innerHTML=itens.map(function(it){
-    var pct2=tG>0?Math.round((it.val/tG)*100):0;
-    return '<div style="margin-bottom:10px;">'+
-      '<div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px;">'+
-        '<span style="color:#2C1A0E;">'+it.label+'</span>'+
-        '<span style="color:'+it.cor+';font-weight:700;">'+fmt(it.val)+' ('+pct2+'%)</span>'+
-      '</div>'+
-      '<div style="height:6px;background:#E8DFC8;border-radius:3px;">'+
-        '<div style="height:100%;width:'+pct2+'%;background:'+it.cor+';border-radius:3px;transition:width .3s;"></div>'+
-      '</div>'+
-    '</div>';
+  document.getElementById('grafico-legenda').innerHTML=dados.filter(function(d){return d.val>0;}).map(function(d){
+    var p=Math.round((d.val/total)*100);
+    return '<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;"><div style="width:10px;height:10px;border-radius:50%;background:'+d.cor+';flex-shrink:0;"></div><span>'+d.label+'</span><span style="margin-left:auto;color:#8A7055;">'+p+'% · '+fmt(d.val)+'</span></div>';
   }).join('');
-  // Comparativo
-  if(historico && historico.length>0){
-    var ant=historico[0];
-    var card=document.getElementById('comparativo-card');
-    var cont=document.getElementById('comparativo-content');
-    card.style.display='block';
-    var diff=tG-ant.gastos;
-    var cor=diff>0?'#9B2335':'#5C7A3E';
-    var sinal=diff>0?'▲ Mais':'▼ Menos';
-    cont.innerHTML=
-      '<div style="font-size:13px;color:#8A7055;margin-bottom:10px;">'+escHtml(ant.mes)+'</div>'+
-      '<div style="display:flex;gap:10px;">'+
-        '<div style="flex:1;background:#F2EDE4;border:1px solid #C4A97D;border-radius:6px;padding:10px;text-align:center;">'+
-          '<div style="font-size:10px;color:#8A7055;margin-bottom:4px;">Anterior</div>'+
-          '<div style="font-size:15px;font-weight:700;color:#8B4513;">'+fmt(ant.gastos)+'</div>'+
-        '</div>'+
-        '<div style="display:flex;align-items:center;font-size:20px;color:'+cor+';">›</div>'+
-        '<div style="flex:1;background:#F2EDE4;border:1px solid #C4A97D;border-radius:6px;padding:10px;text-align:center;">'+
-          '<div style="font-size:10px;color:#8A7055;margin-bottom:4px;">Atual</div>'+
-          '<div style="font-size:15px;font-weight:700;color:#8B4513;">'+fmt(tG)+'</div>'+
-        '</div>'+
-      '</div>'+
-      '<div style="margin-top:10px;text-align:center;font-size:13px;font-weight:700;color:'+cor+';">'+sinal+' '+fmt(Math.abs(diff))+' que o mês anterior</div>';
-  }
 }
 
-// ─── HISTÓRICO ────────────────────────────────────────────────────────────────
-var historico = [];
+function desenharCats(){
+  var canvas=document.getElementById('grafico-cats');
+  var legDiv=document.getElementById('cats-legenda');
+  if(!canvas||!legDiv) return;
+  var all=[].concat(lancamentos);
+  if(!all.length){legDiv.innerHTML='<div style="text-align:center;color:#8A7055;font-size:12px;font-style:italic;">Adicione lançamentos para ver o gráfico por categoria.</div>';return;}
+  var cats={};
+  all.forEach(function(l){if(!cats[l.cat])cats[l.cat]=0;cats[l.cat]+=l.valor;});
+  var sorted=Object.entries(cats).sort(function(a,b){return b[1]-a[1];});
+  var total=sorted.reduce(function(s,e){return s+e[1];},0);
+  // Draw horizontal bars on canvas
+  var ctx=canvas.getContext('2d');
+  var W=canvas.offsetWidth||300;
+  var rowH=28,pad=10;
+  canvas.height=sorted.length*rowH+pad;
+  canvas.width=W;
+  ctx.clearRect(0,0,W,canvas.height);
+  sorted.forEach(function(entry,i){
+    var cat=entry[0],val=entry[1];
+    var pct=total>0?val/total:0;
+    var barW=Math.max((W-100)*pct,2);
+    var y=i*rowH+pad/2;
+    var cor=CAT_CORES[cat]||'#C4A97D';
+    // label
+    ctx.fillStyle='#8A7055';ctx.font='11px Courier Prime, monospace';
+    ctx.fillText(cat,0,y+16);
+    // bar bg
+    ctx.fillStyle='#E8DFC8';ctx.beginPath();ctx.roundRect(80,y+4,W-100,16,4);ctx.fill();
+    // bar fill
+    ctx.fillStyle=cor;ctx.beginPath();ctx.roundRect(80,y+4,barW,16,4);ctx.fill();
+    // value
+    ctx.fillStyle='#2C1A0E';ctx.font='bold 11px Courier Prime, monospace';
+    ctx.fillText(fmt(val),80+barW+4,y+16);
+  });
+  legDiv.innerHTML='<div style="font-size:11px;color:#8A7055;text-align:right;margin-top:6px;">Total lançado: <strong style="color:#8B4513;">'+fmt(total)+'</strong></div>';
+}
 
+// ─── FECHAR MÊS ───────────────────────────────────────────────────────────────
+window.fecharMes=function(){
+  var mes=getNomeMes();
+  if(!confirm('Fechar '+mes+' e arquivar no histórico?')) return;
+  var r1=parseFloat(document.getElementById('renda1').value)||0;
+  var r2=parseFloat(document.getElementById('renda2').value)||0;
+  var va=parseFloat(document.getElementById('valeAlim').value)||0;
+  var vt=parseFloat(document.getElementById('valeTransp').value)||0;
+  var aj=parseFloat(document.getElementById('ajuda').value)||0;
+  var ou=parseFloat(document.getElementById('outrasEntradas').value)||0;
+  var renda=r1+r2+va+vt+aj+ou;
+  var tF=fixos.reduce(function(s,f){return s+(parseFloat(f.valor)||0);},0);
+  var tX=extras.reduce(function(s,e){return s+(parseFloat(e.valor)||0);},0);
+  var gastos=tF+tX;
+  var snap={mes:mes,renda:renda,gastos:gastos,saldo:renda-gastos,fixos:JSON.parse(JSON.stringify(fixos)),extras:JSON.parse(JSON.stringify(extras)),lancamentos:JSON.parse(JSON.stringify(lancamentos)),fechadoEm:new Date().toLocaleDateString('pt-BR')};
+  if(!historico) historico=[];
+  historico.unshift(snap);
+  // Reset
+  addFixoSilent(); addExtraSilent();
+  lancamentos=[];
+  ['renda1','renda2','valeAlim','valeTransp','ajuda','outrasEntradas','reserva-tenho','reserva-meta'].forEach(function(id){document.getElementById(id).value='';});
+  document.getElementById('renda1').value='4900';
+  document.getElementById('renda2').value='6501.52';
+  document.getElementById('valeAlim').value='1101.52';
+  document.getElementById('ajuda').value='500';
+  calcFinance(); calcReserva();
+  schedSave();
+  alert('✦ '+mes+' arquivado!');
+  finTab('historico');
+};
+
+// ─── HISTÓRICO ────────────────────────────────────────────────────────────────
 function renderHistorico(){
-  var vazio=document.getElementById('historico-vazio');
+  var v=document.getElementById('historico-vazio');
   var lista=document.getElementById('historico-lista');
-  if(!historico||historico.length===0){
-    vazio.style.display='block'; lista.innerHTML=''; return;
-  }
-  vazio.style.display='none';
+  if(!historico||!historico.length){if(v)v.style.display='block';lista.innerHTML='';return;}
+  if(v) v.style.display='none';
   lista.innerHTML=historico.map(function(h,i){
     var pos=h.saldo>=0;
-    var isOpen=false;
-    return '<div style="background:#EDE6D6;border:2px solid #C4A97D;border-radius:8px;margin-bottom:10px;overflow:hidden;">'+
-      '<div onclick="toggleHist('+i+')" style="display:flex;justify-content:space-between;align-items:center;padding:14px 16px;cursor:pointer;">'+
+    var tF=(h.fixos||[]).reduce(function(s,f){return s+(parseFloat(f.valor)||0);},0);
+    var tX=(h.extras||[]).reduce(function(s,e){return s+(parseFloat(e.valor)||0);},0);
+    return '<div class="hist-item">'+
+      '<div class="hist-header" onclick="toggleHist('+i+')">'+
         '<div>'+
-          '<div style="font-family:'+"'Playfair Display',serif"+';font-size:15px;font-weight:600;color:#2C1A0E;">'+escHtml(h.mes)+'</div>'+
+          '<div style="font-family:'Playfair Display',serif;font-size:15px;font-weight:600;color:#2C1A0E;">'+escHtml(h.mes)+'</div>'+
           '<div style="font-size:10px;color:#8A7055;margin-top:2px;">Fechado em '+escHtml(h.fechadoEm||'—')+'</div>'+
         '</div>'+
         '<div style="text-align:right;">'+
@@ -704,40 +759,37 @@ function renderHistorico(){
           '<div style="font-size:10px;color:#8A7055;">saldo</div>'+
         '</div>'+
       '</div>'+
-      '<div id="hist-detalhe-'+i+'" style="display:none;padding:0 16px 16px;">'+
-        '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:10px;">'+
+      '<div id="hist-det-'+i+'" class="hist-body">'+
+        '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:12px;">'+
           '<div style="background:#F2EDE4;border:1px solid #C4A97D;border-radius:6px;padding:8px;text-align:center;"><div style="font-size:9px;color:#8A7055;">Renda</div><div style="font-size:13px;font-weight:700;color:#5C7A3E;">'+fmt(h.renda)+'</div></div>'+
           '<div style="background:#F2EDE4;border:1px solid #C4A97D;border-radius:6px;padding:8px;text-align:center;"><div style="font-size:9px;color:#8A7055;">Gastos</div><div style="font-size:13px;font-weight:700;color:#9B2335;">'+fmt(h.gastos)+'</div></div>'+
           '<div style="background:#F2EDE4;border:1px solid #C4A97D;border-radius:6px;padding:8px;text-align:center;"><div style="font-size:9px;color:#8A7055;">Saldo</div><div style="font-size:13px;font-weight:700;color:'+(pos?'#5C7A3E':'#9B2335')+';">'+fmt(h.saldo)+'</div></div>'+
         '</div>'+
-        (h.fixos&&h.fixos.length?
-          '<div style="font-size:11px;color:#8A7055;margin-bottom:6px;text-transform:uppercase;letter-spacing:.08em;">Gastos Fixos</div>'+
-          h.fixos.filter(function(f){return parseFloat(f.valor)>0;}).map(function(f){
-            return '<div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid #E8DFC8;font-size:12px;">'+
-              '<span>'+escHtml(f.desc)+'</span><span style="color:#8B4513;font-weight:700;">'+fmt(f.valor)+'</span></div>';
-          }).join(''):'')+
-        (h.extras&&h.extras.length?
-          '<div style="font-size:11px;color:#8A7055;margin:10px 0 6px;text-transform:uppercase;letter-spacing:.08em;">Gastos Extras</div>'+
-          h.extras.filter(function(e){return parseFloat(e.valor)>0;}).map(function(e){
-            return '<div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid #E8DFC8;font-size:12px;">'+
-              '<span><span style="color:#8A7055;font-size:10px;">'+escHtml(e.pessoa)+'</span> '+escHtml(e.desc)+'</span>'+
-              '<span style="color:#8B4513;font-weight:700;">'+fmt(e.valor)+'</span></div>';
+        (h.lancamentos&&h.lancamentos.length?
+          '<div style="font-size:11px;color:#8A7055;margin-bottom:6px;text-transform:uppercase;letter-spacing:.08em;">Lançamentos ('+h.lancamentos.length+')</div>'+
+          h.lancamentos.map(function(l){
+            var cor=CAT_CORES[l.cat]||'#C4A97D';
+            return '<div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid #E8DFC8;font-size:12px;">'+
+              '<span style="color:#8A7055;font-size:10px;width:34px;flex-shrink:0;">'+(l.data||'')+'</span>'+
+              '<span style="flex:1;">'+escHtml(l.desc)+'</span>'+
+              '<span style="font-size:10px;padding:1px 6px;border-radius:8px;background:'+cor+'22;color:'+cor+';margin:0 6px;">'+escHtml(l.cat)+'</span>'+
+              '<span style="font-weight:700;color:#8B4513;">'+fmt(l.valor)+'</span>'+
+            '</div>';
           }).join(''):'')+
       '</div>'+
     '</div>';
   }).join('');
 }
 
-window.toggleHist = function(i){
-  var el=document.getElementById('hist-detalhe-'+i);
-  el.style.display=el.style.display==='none'?'block':'none';
+window.toggleHist=function(i){
+  var el=document.getElementById('hist-det-'+i);
+  if(el) el.style.display=el.style.display==='block'?'none':'block';
 };
 
-// ─── PATCH calcFinance to update resumo + save historico ─────────────────────
-var _origCalcFinance = window.calcFinance;
-window.calcFinance = function(){
-  _origCalcFinance();
-  // Update resumo rápido
+// ─── PATCH calcFinance ────────────────────────────────────────────────────────
+var _origCalc=window.calcFinance;
+window.calcFinance=function(){
+  _origCalc();
   var r1=parseFloat(document.getElementById('renda1').value)||0;
   var r2=parseFloat(document.getElementById('renda2').value)||0;
   var va=parseFloat(document.getElementById('valeAlim').value)||0;
@@ -747,29 +799,30 @@ window.calcFinance = function(){
   var rT=r1+r2+va+vt+aj+ou;
   var tF=fixos.reduce(function(s,f){return s+(parseFloat(f.valor)||0);},0);
   var tX=extras.reduce(function(s,e){return s+(parseFloat(e.valor)||0);},0);
-  var tG=tF+tX;
-  var saldo=rT-tG;
+  var tG=tF+tX; var saldo=rT-tG;
   var rEl=document.getElementById('resumo-renda');
   var gEl=document.getElementById('resumo-gastos');
   var sEl=document.getElementById('resumo-saldo');
-  if(rEl) rEl.textContent='R$'+(rT/1000).toFixed(1)+'k';
-  if(gEl) gEl.textContent='R$'+(tG/1000).toFixed(1)+'k';
-  if(sEl){ sEl.textContent=(saldo>=0?'+':'')+'R$'+(Math.abs(saldo)/1000).toFixed(1)+'k'; sEl.style.color=saldo>=0?'#5C7A3E':'#9B2335';}
-  if(currentTab==='grafico'){desenharGrafico();renderDetalhes();}
+  function fmtK(n){return n>=1000?'R$'+(n/1000).toFixed(1)+'k':'R$'+n.toFixed(0);}
+  if(rEl) rEl.textContent=fmtK(rT);
+  if(gEl) gEl.textContent=fmtK(tG);
+  if(sEl){sEl.textContent=(saldo>=0?'+':'')+fmtK(saldo);sEl.style.color=saldo>=0?'#5C7A3E':'#9B2335';}
+  if(currentFinTab==='grafico'){desenharRosca();desenharCats();}
 };
 
-// Patch schedSave to include historico
-var _origSchedSave = window.schedSave;
-window.schedSave = function(){
+// ─── PATCH schedSave ──────────────────────────────────────────────────────────
+var _origSched=window.schedSave;
+window.schedSave=function(){
   if(isLoading) return;
   setStatus('💾 salvando...');
   if(saveTimer) clearTimeout(saveTimer);
-  saveTimer = setTimeout(function(){
+  saveTimer=setTimeout(function(){
     isSaving=true;
-    var payload = {
-      mesAtual: getNomeMes(),
-      tasks:tasks, shopping:shopping, fixos:fixos, extras:extras,
-      historico: historico||[],
+    set(dbRef,{
+      mesAtual:getNomeMes(),
+      tasks:tasks,shopping:shopping,fixos:fixos,extras:extras,
+      lancamentos:lancamentos||[],
+      historico:historico||[],
       fin:{
         renda1:document.getElementById('renda1').value,
         renda2:document.getElementById('renda2').value,
@@ -780,19 +833,26 @@ window.schedSave = function(){
         reservaTenho:document.getElementById('reserva-tenho').value,
         reservaMeta:document.getElementById('reserva-meta').value
       }
-    };
-    set(dbRef,payload)
-      .then(function(){setStatus('✦ sincronizado');saveTimer=null;isSaving=false;})
+    }).then(function(){setStatus('✦ sincronizado');saveTimer=null;isSaving=false;})
       .catch(function(e){setStatus('⚠️ '+e.message);saveTimer=null;isSaving=false;});
   },1000);
 };
 
-// Patch onValue to load historico
-var _origOnValue = null; // already called, patch via loading logic
-// We load historico inside the existing onValue via a global flag
-window._loadHistorico = function(d){
-  if(d && d.historico) historico = d.historico;
-  else historico = [];
+// ─── PATCH onValue to load extras ────────────────────────────────────────────
+// Inject into existing onValue after isLoading=false line
+// We patch by overriding updateHomeSummaries which is called at end of onValue
+var _origUpdateHome=updateHomeSummaries;
+function updateHomeSummaries(){
+  _origUpdateHome();
+}
+
+// Load lancamentos and historico from Firebase data — patched via global
+window._finLoad=function(d){
+  if(d.lancamentos&&d.lancamentos.length) lancamentos=d.lancamentos;
+  else lancamentos=JSON.parse(JSON.stringify(defaultLancamentos));
+  if(d.historico) historico=d.historico;
+  else historico=[];
+  if(currentFinTab==='lancamentos') renderLancamentos();
 };
 </script>
 
