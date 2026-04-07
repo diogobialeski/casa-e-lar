@@ -751,7 +751,7 @@ function renderHistorico(){
     return '<div class="hist-item">'+
       '<div class="hist-header" onclick="toggleHist('+i+')">'+
         '<div>'+
-          '<div style="font-family:'Playfair Display',serif;font-size:15px;font-weight:600;color:#2C1A0E;">'+escHtml(h.mes)+'</div>'+
+          '<div style="font-family:Playfair Display,serif;font-size:15px;font-weight:600;color:#2C1A0E;">'+escHtml(h.mes)+'</div>'+
           '<div style="font-size:10px;color:#8A7055;margin-top:2px;">Fechado em '+escHtml(h.fechadoEm||'—')+'</div>'+
         '</div>'+
         '<div style="text-align:right;">'+
@@ -841,10 +841,6 @@ window.schedSave=function(){
 // ─── PATCH onValue to load extras ────────────────────────────────────────────
 // Inject into existing onValue after isLoading=false line
 // We patch by overriding updateHomeSummaries which is called at end of onValue
-var _origUpdateHome=updateHomeSummaries;
-function updateHomeSummaries(){
-  _origUpdateHome();
-}
 
 // Load lancamentos and historico from Firebase data — patched via global
 window._finLoad=function(d){
