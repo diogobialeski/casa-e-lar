@@ -376,7 +376,23 @@ setStatus('🔄 conectando...');
 onValue(dbRef, function(snapshot){
   if(isSaving) return; // não sobrescreve enquanto está salvando
   var d = snapshot.val();
-  if(!d){setStatus('✦ pronto');if(fixos.length===0)addFixoSilent();if(extras.length===0)addExtraSilent();return;}
+  if(!d){
+    setStatus('✦ pronto');
+    if(fixos.length===0)addFixoSilent();
+    if(extras.length===0)addExtraSilent();
+    // Load default lancamentos from card data
+    lancamentos=JSON.parse(JSON.stringify(defaultLancamentos));
+    renderLancamentos();
+    // Load default renda
+    document.getElementById('renda1').value='4900';
+    document.getElementById('renda2').value='6501.52';
+    document.getElementById('valeAlim').value='1101.52';
+    document.getElementById('valeTransp').value='0';
+    document.getElementById('ajuda').value='500';
+    document.getElementById('outrasEntradas').value='0';
+    calcFinance();
+    return;
+  }
   isLoading=true;
   if(d.tasks){tasks=d.tasks;renderTasks();}
   if(d.shopping){shopping=d.shopping;renderShopping();}
