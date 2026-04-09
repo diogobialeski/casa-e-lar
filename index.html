@@ -473,29 +473,79 @@ function renderShopping(){
 // FIXOS
 function addFixoSilent(){fixos.push({id:fixoId++,desc:'',valor:'',forma:'Débito/Pix',pago:false});renderFixos();}
 window.addFixo=function(){fixos.push({id:fixoId++,desc:'',valor:'',forma:'Débito/Pix',pago:false});renderFixos();schedSave();};
-window.removeFixo=function(id){fixos=fixos.filter(function(f){return f.id!==id;});renderFixos();calcFinance();schedSave();};
-window.toggleFixoPago=function(id){fixos=fixos.map(function(f){return f.id===id?Object.assign({},f,{pago:!f.pago}):f;});renderFixos();schedSave();};
-window.updateFixo=function(id,key,val){fixos=fixos.map(function(f){if(f.id===id){var u={};u[key]=val;return Object.assign({},f,u);}return f;});calcFinance();schedSave();};
 function renderFixos(){
-  document.getElementById('fixos-list').innerHTML=fixos.map(function(f){
-    var opts=formas.map(function(fo){return '<option'+(fo===f.forma?' selected':'')+'>'+fo+'</option>';}).join('');
-    var dq=String.fromCharCode(34);
-    return '<div class='+dq+'fin-row'+dq+'><input class='+dq+'inp'+dq+' placeholder='+dq+'Descrição'+dq+' value='+dq+escHtml(f.desc)+dq+' oninput='+dq+'updateFixo('+f.id+',"desc",this.value)'+dq+' style='+dq+'flex:1;min-width:100px;'+dq+'><input class='+dq+'inp'+dq+' type='+dq+'number'+dq+' placeholder='+dq+'R$'+dq+' value='+dq+f.valor+dq+' oninput='+dq+'updateFixo('+f.id+',"valor",this.value)'+dq+' style='+dq+'width:80px;flex-shrink:0;'+dq+'><select class='+dq+'inp'+dq+' onchange='+dq+'updateFixo('+f.id+',"forma",this.value)'+dq+' style='+dq+'width:120px;flex-shrink:0;font-size:12px'+dq+'>'+opts+'</select><button onclick='+dq+'toggleFixoPago('+f.id+')'+dq+' style='+dq+'width:32px;height:32px;border-radius:4px;border:1.5px solid #C4A97D;background:'+(f.pago?'#5C7A3E':'none')+';cursor:pointer;display:flex;align-items:center;justify-content:center;color:#fff;flex-shrink:0;'+dq+'>'+(f.pago?checkSvg():'')+'</button><button class='+dq+'trash-btn'+dq+' onclick='+dq+'removeFixo('+f.id+')'+dq+'>'+trashSvg()+'</button></div>';
-  }).join('');
+  var list=document.getElementById('fixos-list');
+  list.innerHTML='';
+  fixos.forEach(function(f){
+    var row=document.createElement('div');
+    row.className='fin-row';
+    // desc input
+    var dInp=document.createElement('input');
+    dInp.className='inp';dInp.placeholder='Descrição';dInp.value=f.desc||'';
+    dInp.style='flex:1;min-width:90px;padding:8px;font-size:14px;';
+    dInp.addEventListener('input',function(){f.desc=this.value;calcFinance();schedSave();});
+    // valor input
+    var vInp=document.createElement('input');
+    vInp.type='number';vInp.className='inp';vInp.placeholder='R$';vInp.value=f.valor||'';
+    vInp.style='width:76px;flex-shrink:0;padding:8px;font-size:14px;';
+    vInp.addEventListener('input',function(){f.valor=this.value;calcFinance();schedSave();});
+    // forma select
+    var sel=document.createElement('select');
+    sel.className='inp';sel.style='width:110px;flex-shrink:0;padding:8px;font-size:11px;';
+    formas.forEach(function(fo){var o=document.createElement('option');o.value=fo;o.textContent=fo;if(fo===f.forma)o.selected=true;sel.appendChild(o);});
+    sel.addEventListener('change',function(){f.forma=this.value;calcFinance();schedSave();});
+    // pago btn
+    var pBtn=document.createElement('button');
+    pBtn.style='width:30px;height:30px;border-radius:4px;border:1.5px solid #C4A97D;background:'+(f.pago?'#5C7A3E':'none')+';cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;';
+    if(f.pago)pBtn.innerHTML=checkSvg();
+    pBtn.addEventListener('click',function(){f.pago=!f.pago;this.style.background=f.pago?'#5C7A3E':'none';this.innerHTML=f.pago?checkSvg():'';schedSave();});
+    // trash btn
+    var tBtn=document.createElement('button');
+    tBtn.className='trash-btn';tBtn.innerHTML=trashSvg();
+    tBtn.addEventListener('click',function(){fixos=fixos.filter(function(x){return x.id!==f.id;});renderFixos();calcFinance();schedSave();});
+    row.appendChild(dInp);row.appendChild(vInp);row.appendChild(sel);row.appendChild(pBtn);row.appendChild(tBtn);
+    list.appendChild(row);
+  });
 }
 
-// EXTRAS
-function addExtraSilent(){extras.push({id:extraId++,pessoa:'',desc:'',valor:'',forma:'Crédito À Vista',pago:false});renderExtras();}
-window.addExtra=function(){extras.push({id:extraId++,pessoa:'',desc:'',valor:'',forma:'Crédito À Vista',pago:false});renderExtras();schedSave();};
-window.removeExtra=function(id){extras=extras.filter(function(e){return e.id!==id;});renderExtras();calcFinance();schedSave();};
-window.toggleExtraPago=function(id){extras=extras.map(function(e){return e.id===id?Object.assign({},e,{pago:!e.pago}):e;});renderExtras();schedSave();};
-window.updateExtra=function(id,key,val){extras=extras.map(function(e){if(e.id===id){var u={};u[key]=val;return Object.assign({},e,u);}return e;});calcFinance();schedSave();};
 function renderExtras(){
-  document.getElementById('extras-list').innerHTML=extras.map(function(e){
-    var opts=formas.map(function(fo){return '<option'+(fo===e.forma?' selected':'')+'>'+fo+'</option>';}).join('');
-    var dq=String.fromCharCode(34);
-    return '<div class='+dq+'fin-row'+dq+'><input class='+dq+'inp'+dq+' placeholder='+dq+'Pessoa'+dq+' value='+dq+escHtml(e.pessoa)+dq+' oninput='+dq+'updateExtra('+e.id+',"pessoa",this.value)'+dq+' style='+dq+'width:80px;flex-shrink:0;'+dq+'><input class='+dq+'inp'+dq+' placeholder='+dq+'Descrição'+dq+' value='+dq+escHtml(e.desc)+dq+' oninput='+dq+'updateExtra('+e.id+',"desc",this.value)'+dq+' style='+dq+'flex:1;min-width:80px;'+dq+'><input class='+dq+'inp'+dq+' type='+dq+'number'+dq+' placeholder='+dq+'R$'+dq+' value='+dq+e.valor+dq+' oninput='+dq+'updateExtra('+e.id+',"valor",this.value)'+dq+' style='+dq+'width:80px;flex-shrink:0;'+dq+'><select class='+dq+'inp'+dq+' onchange='+dq+'updateExtra('+e.id+',"forma",this.value)'+dq+' style='+dq+'width:120px;flex-shrink:0;font-size:12px'+dq+'>'+opts+'</select><button onclick='+dq+'toggleExtraPago('+e.id+')'+dq+' style='+dq+'width:32px;height:32px;border-radius:4px;border:1.5px solid #C4A97D;background:'+(e.pago?'#5C7A3E':'none')+';cursor:pointer;display:flex;align-items:center;justify-content:center;color:#fff;flex-shrink:0;'+dq+'>'+(e.pago?checkSvg():'')+'</button><button class='+dq+'trash-btn'+dq+' onclick='+dq+'removeExtra('+e.id+')'+dq+'>'+trashSvg()+'</button></div>';
-  }).join('');
+  var list=document.getElementById('extras-list');
+  list.innerHTML='';
+  extras.forEach(function(e){
+    var row=document.createElement('div');
+    row.className='fin-row';
+    // pessoa input
+    var pInp=document.createElement('input');
+    pInp.className='inp';pInp.placeholder='Pessoa';pInp.value=e.pessoa||'';
+    pInp.style='width:70px;flex-shrink:0;padding:8px;font-size:13px;';
+    pInp.addEventListener('input',function(){e.pessoa=this.value;schedSave();});
+    // desc input
+    var dInp=document.createElement('input');
+    dInp.className='inp';dInp.placeholder='Descrição';dInp.value=e.desc||'';
+    dInp.style='flex:1;min-width:70px;padding:8px;font-size:13px;';
+    dInp.addEventListener('input',function(){e.desc=this.value;schedSave();});
+    // valor input
+    var vInp=document.createElement('input');
+    vInp.type='number';vInp.className='inp';vInp.placeholder='R$';vInp.value=e.valor||'';
+    vInp.style='width:76px;flex-shrink:0;padding:8px;font-size:14px;';
+    vInp.addEventListener('input',function(){e.valor=this.value;calcFinance();schedSave();});
+    // forma select
+    var sel=document.createElement('select');
+    sel.className='inp';sel.style='width:110px;flex-shrink:0;padding:8px;font-size:11px;';
+    formas.forEach(function(fo){var o=document.createElement('option');o.value=fo;o.textContent=fo;if(fo===e.forma)o.selected=true;sel.appendChild(o);});
+    sel.addEventListener('change',function(){e.forma=this.value;calcFinance();schedSave();});
+    // pago btn
+    var pBtn=document.createElement('button');
+    pBtn.style='width:30px;height:30px;border-radius:4px;border:1.5px solid #C4A97D;background:'+(e.pago?'#5C7A3E':'none')+';cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;';
+    if(e.pago)pBtn.innerHTML=checkSvg();
+    pBtn.addEventListener('click',function(){e.pago=!e.pago;this.style.background=e.pago?'#5C7A3E':'none';this.innerHTML=e.pago?checkSvg():'';schedSave();});
+    // trash btn
+    var tBtn=document.createElement('button');
+    tBtn.className='trash-btn';tBtn.innerHTML=trashSvg();
+    tBtn.addEventListener('click',function(){extras=extras.filter(function(x){return x.id!==e.id;});renderExtras();calcFinance();schedSave();});
+    row.appendChild(pInp);row.appendChild(dInp);row.appendChild(vInp);row.appendChild(sel);row.appendChild(pBtn);row.appendChild(tBtn);
+    list.appendChild(row);
+  });
 }
 
 // FINANÇAS
@@ -813,14 +863,14 @@ window.calcFinance=function(){
   var tF=fixos.reduce(function(s,f){return s+(parseFloat(f.valor)||0);},0);
   var tX=extras.reduce(function(s,e){return s+(parseFloat(e.valor)||0);},0);
   var tG=tF+tX; var saldo=rT-tG;
+  function fmtK(n){return n>=1000?'R$'+(n/1000).toFixed(1)+'k':'R$'+n.toFixed(0);}
   var rEl=document.getElementById('resumo-renda');
   var gEl=document.getElementById('resumo-gastos');
   var sEl=document.getElementById('resumo-saldo');
-  function fmtK(n){return n>=1000?'R$'+(n/1000).toFixed(1)+'k':'R$'+n.toFixed(0);}
   if(rEl) rEl.textContent=fmtK(rT);
   if(gEl) gEl.textContent=fmtK(tG);
-  if(sEl){sEl.textContent=(saldo>=0?'+':'')+fmtK(saldo);sEl.style.color=saldo>=0?'#5C7A3E':'#9B2335';}
-  if(currentFinTab==='grafico'){desenharRosca();desenharCats();}
+  if(sEl){sEl.textContent=(saldo>=0?'+':'')+fmtK(Math.abs(saldo));sEl.style.color=saldo>=0?'#5C7A3E':'#9B2335';}
+  if(currentFinTab==='grafico'){setTimeout(function(){desenharRosca();desenharCats();},50);}
 };
 
 // ─── PATCH schedSave ──────────────────────────────────────────────────────────
