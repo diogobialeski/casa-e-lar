@@ -14,8 +14,8 @@
 <style>
   *{box-sizing:border-box;margin:0;padding:0;}
   html,body{height:100%;width:100%;}
-  body{background:#F2EDE4;font-family:'Courier Prime',monospace;color:#2C1A0E;min-height:100vh;-webkit-text-size-adjust:100%;overflow-x:hidden;}
-  input,select{font-family:'Courier Prime',monospace;font-size:16px!important;}
+  body{background:#F2EDE4;font-family:monospace;color:#2C1A0E;min-height:100vh;-webkit-text-size-adjust:100%;overflow-x:hidden;}
+  input,select{font-family:monospace;font-size:16px!important;}
   input::placeholder{color:#8A7055;opacity:.7;}
   input:focus,select:focus{outline:none;border-color:#8B4513!important;}
   select{appearance:none;-webkit-appearance:none;cursor:pointer;}
@@ -29,12 +29,12 @@
   .page{display:none;min-height:100vh;}
   .page.active{display:block;}
   .page-header{background:#EDE6D6;border-bottom:2px solid #C4A97D;padding:14px 16px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:10;}
-  .page-title{font-family:'Playfair Display',serif;font-size:18px;font-weight:700;color:#2C1A0E;}
+  .page-title{font-family:Georgia,serif;font-size:18px;font-weight:700;color:#2C1A0E;}
   .badge{margin-left:auto;font-size:11px;color:#8A7055;background:#E8DFC8;padding:3px 10px;border-radius:2px;border:1px solid #C4A97D;}
   .back-btn{background:none;border:none;color:#8A7055;cursor:pointer;display:flex;align-items:center;padding:4px;}
   .section-card{background:#EDE6D6;border:2px solid #C4A97D;border-radius:8px;padding:16px;margin-bottom:14px;box-shadow:2px 2px 0 #C4A97D;}
-  .section-title{font-family:'Playfair Display',serif;font-size:15px;font-weight:700;color:#8B4513;letter-spacing:.04em;margin-bottom:12px;padding-bottom:6px;border-bottom:1px solid #C4A97D;}
-  .inp{background:#F2EDE4;border:1.5px solid #C4A97D;border-radius:3px;color:#2C1A0E;padding:12px 10px;font-size:16px;font-family:'Courier Prime',monospace;width:100%;}
+  .section-title{font-family:Georgia,serif;font-size:15px;font-weight:700;color:#8B4513;letter-spacing:.04em;margin-bottom:12px;padding-bottom:6px;border-bottom:1px solid #C4A97D;}
+  .inp{background:#F2EDE4;border:1.5px solid #C4A97D;border-radius:3px;color:#2C1A0E;padding:12px 10px;font-size:16px;font-family:monospace;width:100%;}
   .inp:focus{outline:none;border-color:#8B4513;}
   .add-btn{background:#8B4513;border:none;border-radius:3px;color:#FAF0E6;font-weight:700;font-size:20px;width:48px;height:48px;cursor:pointer;flex-shrink:0;}
   .check-box{width:24px;height:24px;border-radius:4px;border:1.5px solid #C4A97D;background:none;cursor:pointer;flex-shrink:0;}
@@ -48,12 +48,12 @@
   .saldo-box{margin-top:12px;border-radius:4px;padding:14px 16px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;}
   .progress-wrap{height:4px;background:#E8DFC8;border-radius:2px;border:1px solid #C4A97D;margin-top:12px;}
   .progress-bar{height:100%;border-radius:2px;transition:width .3s;}
-  .add-line-btn{background:none;border:1px dashed #C4A97D;border-radius:3px;color:#8A7055;padding:8px 12px;cursor:pointer;font-size:13px;font-family:'Courier Prime',monospace;}
+  .add-line-btn{background:none;border:1px dashed #C4A97D;border-radius:3px;color:#8A7055;padding:8px 12px;cursor:pointer;font-size:13px;font-family:monospace;}
   .fin-row{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-bottom:8px;padding:8px;background:#F2EDE4;border-radius:3px;border:1px solid #C4A97D;}
   .fin-row .inp{padding:8px;font-size:14px;}
   label.lbl{font-size:11px;color:#8A7055;margin-bottom:4px;display:block;}
   .sync-bar{text-align:center;font-size:11px;color:#8A7055;font-style:italic;padding:8px;}
-  .tab-btn{flex:1;padding:10px 4px;border:none;background:transparent;font-family:'Courier Prime',monospace;font-size:11px;color:#8A7055;cursor:pointer;border-bottom:2px solid transparent;}
+  .tab-btn{flex:1;padding:10px 4px;border:none;background:transparent;font-family:monospace;font-size:11px;color:#8A7055;cursor:pointer;border-bottom:2px solid transparent;}
   .tab-btn.active{color:#8B4513;border-bottom:2px solid #8B4513;font-weight:700;}
   .lan-row{display:flex;align-items:center;gap:8px;padding:8px 10px;margin-bottom:5px;background:#F2EDE4;border-radius:6px;border:1px solid #C4A97D;}
   .lan-cat{font-size:10px;padding:2px 8px;border-radius:10px;background:#E8DFC8;color:#8B4513;border:1px solid #C4A97D;white-space:nowrap;flex-shrink:0;}
@@ -75,7 +75,7 @@
   <div style="width:100%;padding:32px 16px 16px;">
     <div style="text-align:center;margin-bottom:28px;">
       <div style="font-size:10px;color:#8A7055;letter-spacing:.2em;text-transform:uppercase;margin-bottom:12px;">✦ Est. 2026 ✦</div>
-      <div style="font-family:'Playfair Display',serif;font-size:30px;font-weight:700;color:#2C1A0E;line-height:1.1;margin-bottom:6px;">Casa & Lar</div>
+      <div style="font-family:Georgia,serif;font-size:30px;font-weight:700;color:#2C1A0E;line-height:1.1;margin-bottom:6px;">Casa & Lar</div>
       <div style="font-size:12px;color:#8A7055;letter-spacing:.08em;">O nosso cantinho organizado</div>
       <div class="divider"><hr><span style="color:#C4A97D;font-size:14px;">✦</span><hr></div>
     </div>
@@ -83,7 +83,7 @@
       <div style="display:flex;align-items:flex-start;justify-content:space-between;">
         <div style="flex:1;">
           <div style="font-size:10px;color:#C17F3A;letter-spacing:.15em;text-transform:uppercase;margin-bottom:6px;font-weight:700;">▸ Tarefas</div>
-          <div id="tasks-summary" style="font-family:'Playfair Display',serif;font-size:20px;font-weight:600;color:#2C1A0E;">Nenhuma tarefa</div>
+          <div id="tasks-summary" style="font-family:Georgia,serif;font-size:20px;font-weight:600;color:#2C1A0E;">Nenhuma tarefa</div>
           <div id="tasks-progress-wrap" class="progress-wrap" style="display:none;"><div id="tasks-progress-bar" class="progress-bar" style="background:#C17F3A;width:0%"></div></div>
         </div>
         <span style="color:#C4A97D;font-size:22px;margin-left:16px;font-family:serif;">→</span>
@@ -93,7 +93,7 @@
       <div style="display:flex;align-items:flex-start;justify-content:space-between;">
         <div style="flex:1;">
           <div style="font-size:10px;color:#5C7A3E;letter-spacing:.15em;text-transform:uppercase;margin-bottom:6px;font-weight:700;">▸ Compras</div>
-          <div id="shopping-summary" style="font-family:'Playfair Display',serif;font-size:20px;font-weight:600;color:#2C1A0E;">Lista vazia</div>
+          <div id="shopping-summary" style="font-family:Georgia,serif;font-size:20px;font-weight:600;color:#2C1A0E;">Lista vazia</div>
           <div id="shopping-progress-wrap" class="progress-wrap" style="display:none;"><div id="shopping-progress-bar" class="progress-bar" style="background:#5C7A3E;width:0%"></div></div>
         </div>
         <span style="color:#C4A97D;font-size:22px;margin-left:16px;font-family:serif;">→</span>
@@ -103,7 +103,7 @@
       <div style="display:flex;align-items:flex-start;justify-content:space-between;">
         <div style="flex:1;">
           <div style="font-size:10px;color:#8B4513;letter-spacing:.15em;text-transform:uppercase;margin-bottom:6px;font-weight:700;">▸ Financeiro</div>
-          <div id="finance-summary" style="font-family:'Playfair Display',serif;font-size:20px;font-weight:600;color:#2C1A0E;">Ver planilha</div>
+          <div id="finance-summary" style="font-family:Georgia,serif;font-size:20px;font-weight:600;color:#2C1A0E;">Ver planilha</div>
           <div id="finance-progress-wrap" class="progress-wrap"><div id="finance-progress-bar" class="progress-bar" style="background:#C17F3A;width:0%"></div></div>
         </div>
         <span style="color:#C4A97D;font-size:22px;margin-left:16px;font-family:serif;">→</span>
@@ -177,7 +177,7 @@
         <div class="page-title" id="fin-titulo">Finanças — Abril 2026</div>
         <div style="font-size:10px;color:#8A7055;">mês atual</div>
       </div>
-      <button onclick="fecharMes()" style="background:#8B4513;border:none;border-radius:6px;color:#FAF0E6;font-size:10px;padding:6px 10px;cursor:pointer;font-family:'Courier Prime',monospace;">Fechar Mês ✓</button>
+      <button onclick="fecharMes()" style="background:#8B4513;border:none;border-radius:6px;color:#FAF0E6;font-size:10px;padding:6px 10px;cursor:pointer;font-family:monospace;">Fechar Mês ✓</button>
     </div>
     <!-- ABAS -->
     <div style="display:flex;border-top:1px solid #C4A97D;">
@@ -244,7 +244,7 @@
       </div>
       <div id="saldo-box" class="saldo-box" style="background:#EAF4E8;border:2px solid #5C7A3E;">
         <span style="font-size:13px;color:#8A7055;font-weight:700;">Restante do mês</span>
-        <span id="res-saldo" style="font-family:'Playfair Display',serif;font-size:22px;font-weight:700;color:#5C7A3E;">R$ 0,00</span>
+        <span id="res-saldo" style="font-family:Georgia,serif;font-size:22px;font-weight:700;color:#5C7A3E;">R$ 0,00</span>
       </div>
     </div>
     <div class="section-card">
@@ -288,13 +288,13 @@
         </select>
         <input class="inp" id="lan-data" placeholder="Data (04/04)" style="width:90px;flex-shrink:0;">
       </div>
-      <button onclick="addLancamento()" style="background:#8B4513;border:none;border-radius:6px;color:#FAF0E6;font-size:14px;font-weight:700;padding:12px;width:100%;cursor:pointer;font-family:'Courier Prime',monospace;">+ Adicionar</button>
+      <button onclick="addLancamento()" style="background:#8B4513;border:none;border-radius:6px;color:#FAF0E6;font-size:14px;font-weight:700;padding:12px;width:100%;cursor:pointer;font-family:monospace;">+ Adicionar</button>
     </div>
 
 ```
 <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
   <div style="font-size:13px;color:#8A7055;">Total lançado:</div>
-  <div id="lan-total" style="font-family:'Playfair Display',serif;font-size:18px;font-weight:700;color:#9B2335;">R$ 0,00</div>
+  <div id="lan-total" style="font-family:Georgia,serif;font-size:18px;font-weight:700;color:#9B2335;">R$ 0,00</div>
 </div>
 
 <div id="lancamentos-lista"></div>
@@ -393,19 +393,49 @@ onValue(dbRef, function(snapshot){
     return;
   }
   isLoading=true;
+  var currentMes=getNomeMes();
+  var savedMes=d.mesAtual||'';
+  var mesChanged = savedMes && savedMes!==currentMes;
+  
   if(d.tasks){tasks=d.tasks;renderTasks();}
   if(d.shopping){shopping=d.shopping;renderShopping();}
-  if(d.fixos&&d.fixos.length>0){fixos=d.fixos;fixoId=Math.max.apply(null,fixos.map(function(f){return f.id||0;}))+1;renderFixos();}
-  else if(fixos.length===0){addFixoSilent();}
-  if(d.extras&&d.extras.length>0){extras=d.extras;extraId=Math.max.apply(null,extras.map(function(e){return e.id||0;}))+1;renderExtras();}
-  else if(extras.length===0){addExtraSilent();}
-  if(d.fin){
-    var fi=d.fin;
-    ['renda1','renda2','valeAlim','valeTransp','ajuda','outrasEntradas'].forEach(function(id){if(fi[id]!==undefined)document.getElementById(id).value=fi[id];});
-    if(fi.reservaTenho)document.getElementById('reserva-tenho').value=fi.reservaTenho;
-    if(fi.reservaMeta)document.getElementById('reserva-meta').value=fi.reservaMeta;
-    calcFinance();calcReserva();
+  
+  // If month changed or fixos are invalid, load fresh defaults
+  if(mesChanged || !d.fixos || d.fixos.length===0){
+    addFixoSilent();
+  } else {
+    fixos=d.fixos;
+    fixoId=Math.max.apply(null,fixos.map(function(f){return f.id||0;}))+1;
+    renderFixos();
   }
+  
+  if(mesChanged || !d.extras || d.extras.length===0){
+    addExtraSilent();
+  } else {
+    extras=d.extras;
+    extraId=Math.max.apply(null,extras.map(function(e){return e.id||0;}))+1;
+    renderExtras();
+  }
+  
+  // Load financial inputs
+  if(!mesChanged && d.fin){
+    var fi=d.fin;
+    ['renda1','renda2','valeAlim','valeTransp','ajuda','outrasEntradas'].forEach(function(id){
+      if(fi[id]!==undefined) document.getElementById(id).value=fi[id];
+    });
+    if(fi.reservaTenho) document.getElementById('reserva-tenho').value=fi.reservaTenho;
+    if(fi.reservaMeta) document.getElementById('reserva-meta').value=fi.reservaMeta;
+  } else {
+    // Load default April values
+    document.getElementById('renda1').value='4900';
+    document.getElementById('renda2').value='5929.92';
+    document.getElementById('valeAlim').value='1029.92';
+    document.getElementById('valeTransp').value='0';
+    document.getElementById('ajuda').value='0';
+    document.getElementById('outrasEntradas').value='0';
+  }
+  calcFinance(); calcReserva();
+  
   if(window._finLoad) window._finLoad(d);
   updateHomeSummaries();
   setStatus('✦ sincronizado');
