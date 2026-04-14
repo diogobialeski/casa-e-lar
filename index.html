@@ -361,7 +361,7 @@ const dbRef = ref(db, 'casaELar');
 
 var tasks=[], shopping=[], fixos=[], extras=[];
 var fixoId=1, extraId=1, saveTimer=null, isLoading=false, isSaving=false;
-var formas=['Débito/Pix','Crédito À Vista','Crédito Parcelado'];
+var formas=['Debito/Pix','Credito Vista','Credito Parcelado'];
 
 function setStatus(msg){var el=document.getElementById('sync-status');if(el)el.textContent=msg;}
 function fmt(n){return 'R$ '+Number(n||0).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});}
@@ -522,7 +522,8 @@ function renderFixos(){
     // forma select
     var sel=document.createElement('select');
     sel.className='inp';sel.style='width:110px;flex-shrink:0;padding:8px;font-size:11px;';
-    formas.forEach(function(fo){var o=document.createElement('option');o.value=fo;o.textContent=fo;if(fo===f.forma)o.selected=true;sel.appendChild(o);});
+    var formaLabels={'Debito/Pix':'Débito/Pix','Credito Vista':'Créd. Vista','Credito Parcelado':'Créd. Parcelado'};
+    formas.forEach(function(fo){var o=document.createElement('option');o.value=fo;o.textContent=formaLabels[fo]||fo;if(fo===f.forma)o.selected=true;sel.appendChild(o);});
     sel.addEventListener('change',function(){f.forma=this.value;calcFinance();schedSave();});
     // pago btn
     var pBtn=document.createElement('button');
@@ -538,6 +539,18 @@ function renderFixos(){
   });
 }
 
+function addExtraSilent(){
+  extraId=1;
+  extras=[
+    {id:extraId++,pessoa:'Tite',desc:'Nubank Tine',valor:'42.91',forma:'Credito Vista',pago:false},
+    {id:extraId++,pessoa:'Diogo',desc:'Nubank Diogo',valor:'438.64',forma:'Credito Vista',pago:false},
+    {id:extraId++,pessoa:'Diogo',desc:'Inter',valor:'0.00',forma:'Credito Vista',pago:false},
+    {id:extraId++,pessoa:'Tite',desc:'Riachuelo',valor:'42.91',forma:'Credito Vista',pago:false},
+    {id:extraId++,pessoa:'Diogo',desc:'BLACK',valor:'1541.69',forma:'Credito Vista',pago:false},
+  ];
+  renderExtras();
+}
+window.addExtra=function(){extras.push({id:extraId++,pessoa:'',desc:'',valor:'',forma:'Credito Vista',pago:false});renderExtras();schedSave();};
 function renderExtras(){
   var list=document.getElementById('extras-list');
   list.innerHTML='';
@@ -562,7 +575,8 @@ function renderExtras(){
     // forma select
     var sel=document.createElement('select');
     sel.className='inp';sel.style='width:110px;flex-shrink:0;padding:8px;font-size:11px;';
-    formas.forEach(function(fo){var o=document.createElement('option');o.value=fo;o.textContent=fo;if(fo===e.forma)o.selected=true;sel.appendChild(o);});
+    var formaLabels={'Debito/Pix':'Débito/Pix','Credito Vista':'Créd. Vista','Credito Parcelado':'Créd. Parcelado'};
+    formas.forEach(function(fo){var o=document.createElement('option');o.value=fo;o.textContent=formaLabels[fo]||fo;if(fo===e.forma)o.selected=true;sel.appendChild(o);});
     sel.addEventListener('change',function(){e.forma=this.value;calcFinance();schedSave();});
     // pago btn
     var pBtn=document.createElement('button');
@@ -587,9 +601,9 @@ window.calcFinance=function(){
   var tF=fixos.reduce(function(s,f){return s+(parseFloat(f.valor)||0);},0);
   var tX=extras.reduce(function(s,e){return s+(parseFloat(e.valor)||0);},0);
   var tG=tF+tX,todos=[].concat(fixos,extras);
-  var deb=todos.filter(function(i){return i.forma==='Débito/Pix';}).reduce(function(s,i){return s+(parseFloat(i.valor)||0);},0);
-  var cv=todos.filter(function(i){return i.forma==='Crédito À Vista';}).reduce(function(s,i){return s+(parseFloat(i.valor)||0);},0);
-  var cp=todos.filter(function(i){return i.forma==='Crédito Parcelado';}).reduce(function(s,i){return s+(parseFloat(i.valor)||0);},0);
+  var deb=todos.filter(function(i){return i.forma==='Debito/Pix';}).reduce(function(s,i){return s+(parseFloat(i.valor)||0);},0);
+  var cv=todos.filter(function(i){return i.forma==='Credito Vista';}).reduce(function(s,i){return s+(parseFloat(i.valor)||0);},0);
+  var cp=todos.filter(function(i){return i.forma==='Credito Parcelado';}).reduce(function(s,i){return s+(parseFloat(i.valor)||0);},0);
   var saldo=rT-tG;
   document.getElementById('total-renda').textContent=fmt(tR);
   document.getElementById('total-entradas').textContent=fmt(tE);
@@ -748,9 +762,9 @@ function desenharRosca(){
   var W=canvas.width,H=canvas.height,cx=W/2,cy=H/2,r=42,ri=18;
   ctx.clearRect(0,0,W,H);
   var todos=[].concat(fixos,extras);
-  var deb=todos.filter(function(i){return i.forma==='Débito/Pix';}).reduce(function(s,i){return s+(parseFloat(i.valor)||0);},0);
-  var cv=todos.filter(function(i){return i.forma==='Crédito À Vista';}).reduce(function(s,i){return s+(parseFloat(i.valor)||0);},0);
-  var cp=todos.filter(function(i){return i.forma==='Crédito Parcelado';}).reduce(function(s,i){return s+(parseFloat(i.valor)||0);},0);
+  var deb=todos.filter(function(i){return i.forma==='Debito/Pix';}).reduce(function(s,i){return s+(parseFloat(i.valor)||0);},0);
+  var cv=todos.filter(function(i){return i.forma==='Credito Vista';}).reduce(function(s,i){return s+(parseFloat(i.valor)||0);},0);
+  var cp=todos.filter(function(i){return i.forma==='Credito Parcelado';}).reduce(function(s,i){return s+(parseFloat(i.valor)||0);},0);
   var dados=[{label:'Débito/Pix',val:deb,cor:'#8B4513'},{label:'Créd. Vista',val:cv,cor:'#C17F3A'},{label:'Créd. Parc.',val:cp,cor:'#E8A87C'}];
   var total=deb+cv+cp;
   if(total<=0){ctx.beginPath();ctx.arc(cx,cy,r,0,Math.PI*2);ctx.strokeStyle='#C4A97D';ctx.lineWidth=ri;ctx.stroke();document.getElementById('grafico-legenda').innerHTML='<span style="color:#8A7055;font-style:italic;">Sem gastos</span>';return;}
