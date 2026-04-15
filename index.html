@@ -284,6 +284,8 @@
           <option>Compras</option>
           <option>Estacionamento</option>
           <option>Assinaturas</option>
+          <option>Transporte</option>
+          <option>Saude</option>
           <option>Outros</option>
         </select>
         <input class="inp" id="lan-data" placeholder="Data (04/04)" style="width:90px;flex-shrink:0;">
@@ -389,7 +391,8 @@ onValue(dbRef, function(snapshot){
     document.getElementById('valeTransp').value='0';
     document.getElementById('ajuda').value='0';
     document.getElementById('outrasEntradas').value='0';
-    calcFinance();
+    renderLancamentos();
+    setTimeout(function(){calcFinance();calcReserva();},100);
     return;
   }
   isLoading=true;
@@ -712,6 +715,41 @@ var defaultLancamentos=[
   {id:31,data:'03/04',desc:'Mercadolivre Stiautop (1/2)',valor:49.57,cat:'Compras'},
   {id:32,data:'02/04',desc:'Recarga de celular',valor:60.00,cat:'Outros'},
   {id:33,data:'02/04',desc:'Valentine Veras Silva (4/4)',valor:283.56,cat:'Outros'},
+  {id:34,data:'06/04',desc:'Salgados',valor:7.00,cat:'Alimentacao'},
+  {id:35,data:'06/04',desc:'Shopee Tecnologia',valor:114.22,cat:'Compras'},
+  {id:36,data:'06/04',desc:'BRB Mobilida Bus',valor:2.70,cat:'Transporte'},
+  {id:37,data:'07/04',desc:'Padre Cicero Atacadist',valor:18.26,cat:'Mercado'},
+  {id:38,data:'08/04',desc:'Allpark Estacionamento',valor:6.50,cat:'Estacionamento'},
+  {id:39,data:'08/04',desc:'Park Auto Posto',valor:30.00,cat:'Gasolina'},
+  {id:40,data:'09/04',desc:'Amazon Digital BR',valor:24.90,cat:'Assinaturas'},
+  {id:41,data:'09/04',desc:'Allpark Estacionamento',valor:6.50,cat:'Estacionamento'},
+  {id:42,data:'09/04',desc:'Park Auto Posto',valor:40.00,cat:'Gasolina'},
+  {id:43,data:'09/04',desc:'B91 Rei do Salgado',valor:19.00,cat:'Alimentacao'},
+  {id:44,data:'09/04',desc:'Park Auto Posto',valor:30.00,cat:'Gasolina'},
+  {id:45,data:'10/04',desc:'Shopee Maxmo Atacado',valor:29.43,cat:'Compras'},
+  {id:46,data:'10/04',desc:'Cascol Combustiveis',valor:20.00,cat:'Gasolina'},
+  {id:47,data:'10/04',desc:'Cantina Academica',valor:6.50,cat:'Alimentacao'},
+  {id:48,data:'10/04',desc:'Mammamia Panificadora',valor:19.90,cat:'Alimentacao'},
+  {id:49,data:'11/04',desc:'NK Comercio Aliment',valor:37.16,cat:'Alimentacao'},
+  {id:50,data:'11/04',desc:'Park Auto Posto',valor:50.00,cat:'Gasolina'},
+  {id:51,data:'11/04',desc:'Allpark Estacionamento',valor:6.50,cat:'Estacionamento'},
+  {id:52,data:'12/04',desc:'IFD Regina Lucia (iFood)',valor:46.04,cat:'iFood'},
+  {id:53,data:'12/04',desc:'NK Comercio Aliment',valor:42.92,cat:'Alimentacao'},
+  {id:54,data:'12/04',desc:'Padre Cicero Atacadist',valor:34.48,cat:'Mercado'},
+  {id:55,data:'12/04',desc:'Panificadora Bonanza',valor:40.45,cat:'Alimentacao'},
+  {id:56,data:'13/04',desc:'Park Auto Posto',valor:30.00,cat:'Gasolina'},
+  {id:57,data:'13/04',desc:'BRB Mobilida Bus',valor:2.70,cat:'Transporte'},
+  {id:58,data:'13/04',desc:'Uber Trip',valor:15.95,cat:'Transporte'},
+  {id:59,data:'13/04',desc:'Posto Sao Roque II',valor:20.27,cat:'Gasolina'},
+  {id:60,data:'13/04',desc:'Cantina Academica',valor:6.50,cat:'Alimentacao'},
+  {id:61,data:'13/04',desc:'DL Uberrides',valor:11.94,cat:'Transporte'},
+  {id:62,data:'14/04',desc:'Restaurante Cozinha D',valor:38.69,cat:'Alimentacao'},
+  {id:63,data:'14/04',desc:'MP Drogaria Farma',valor:27.00,cat:'Saude'},
+  {id:64,data:'14/04',desc:'Auto Posto Iticar',valor:20.00,cat:'Gasolina'},
+  {id:65,data:'14/04',desc:'Sacolao Ypiranga',valor:61.10,cat:'Mercado'},
+  {id:66,data:'14/04',desc:'Dental Realce',valor:57.20,cat:'Saude'},
+  {id:67,data:'14/04',desc:'Que Delicia Com',valor:25.00,cat:'Alimentacao'},
+  {id:68,data:'15/04',desc:'DL UberRides',valor:14.04,cat:'Transporte'},
 ];
 var lanId=100;
 
@@ -956,6 +994,8 @@ window._finLoad=function(d){
   if(d.historico) historico=d.historico;
   else historico=[];
   if(currentFinTab==='lancamentos') renderLancamentos();
+  // Ensure calcFinance runs after all data is loaded
+  setTimeout(function(){calcFinance();},100);
 };
 </script>
 
