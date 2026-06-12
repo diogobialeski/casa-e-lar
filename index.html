@@ -906,25 +906,98 @@ function renderMaterias(){
     div.className='card';
     div.style.marginBottom='8px';
     var pct=m.progresso||0;
-    div.innerHTML='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">'+
-      '<div style="font-size:14px;font-weight:600;">'+esc(m.nome)+'</div>'+
+    var conteudo=m.conteudo||'';
+    var aberta=m._aberta||false;
+
+    // Header
+    var header=document.createElement('div');
+    header.style.cssText='display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;cursor:pointer;';
+    header.innerHTML='<div style="font-size:14px;font-weight:600;">'+esc(m.nome)+'</div>'+
       '<div style="display:flex;align-items:center;gap:8px;">'+
         '<span style="font-size:13px;font-weight:700;color:'+m.cor+';">'+pct+'%</span>'+
-        '<button onclick="remMat('+m.id+')" class="trash">'+svgTrash()+'</button>'+
-      '</div></div>'+
-      '<div class="prog-wrap"><div class="prog-bar" style="width:'+pct+'%;background:'+m.cor+';"></div></div>'+
-      '<div style="margin-top:10px;display:flex;align-items:center;gap:8px;">'+
-        '<span style="font-size:11px;color:var(--sub);">Progresso</span>'+
-        '<input type="range" min="0" max="100" value="'+pct+'" style="flex:1;accent-color:'+m.cor+';" data-id="'+m.id+'">'+
+        '<span id="arr-'+m.id+'" style="font-size:12px;color:var(--sub);transition:transform .2s;">'+(aberta?'▲':'▼')+'</span>'+
+        '<button onclick="event.stopPropagation();remMat('+m.id+')" class="trash">'+svgTrash()+'</button>'+
       '</div>';
-    var slider=div.querySelector('input[type=range]');
+    div.appendChild(header);
+
+    // Progress bar
+    var progWrap=document.createElement('div');
+    progWrap.className='prog-wrap';
+    progWrap.innerHTML='<div class="prog-bar" style="width:'+pct+'%;background:'+m.cor+';"></div>';
+    div.appendChild(progWrap);
+
+    // Slider
+    var sliderRow=document.createElement('div');
+    sliderRow.style.cssText='margin-top:10px;display:flex;align-items:center;gap:8px;';
+    sliderRow.innerHTML='<span style="font-size:11px;color:var(--sub);">Progresso</span>';
+    var slider=document.createElement('input');
+    slider.type='range';slider.min=0;slider.max=100;slider.value=pct;
+    slider.style.cssText='flex:1;accent-color:'+m.cor+';';
     slider.addEventListener('input',function(){
-      var mid=parseInt(this.getAttribute('data-id'));
-      materias=materias.map(function(x){return x.id===mid?Object.assign({},x,{progresso:parseInt(slider.value)}):x;});
+      materias=materias.map(function(x){return x.id===m.id?Object.assign({},x,{progresso:parseInt(slider.value)}):x;});
       renderMaterias();schedSave();
     });
+    sliderRow.appendChild(slider);
+    div.appendChild(sliderRow);
+
+    // Conteúdo colapsável
+    var body=document.createElement('div');
+    body.id='mat-body-'+m.id;
+    body.style.cssText='display:'+(aberta?'block':'none')+';margin-top:12px;padding-top:12px;border-top:1px solid var(--bord);';
+
+    // Toolbar de formatação rápida
+    var toolbar=document.createElement('div');
+    toolbar.style.cssText='display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap;';
+    var atalhos=[
+      ['📌 Tópico','\n• '],['📝 Anotação','\n→ '],['⚠️ Importante','\n⚠️ '],['✅ Revisado','\n✅ ']
+    ];
+    atalhos.forEach(function(at){
+      var btn=document.createElement('button');
+      btn.style.cssText='background:var(--surf2);border:1px solid var(--bord);border-radius:6px;color:var(--sub);font-size:11px;padding:4px 8px;cursor:pointer;';
+      btn.textContent=at[0];
+      btn.addEventListener('click',function(){
+        var ta=document.getElementById('ta-'+m.id);
+        if(ta){ta.value+=at[1];ta.focus();ta.dispatchEvent(new Event('input'));}
+      });
+      toolbar.appendChild(btn);
+    });
+    body.appendChild(toolbar);
+
+    // Textarea de conteúdo
+    var ta=document.createElement('textarea');
+    ta.id='ta-'+m.id;
+    ta.className='inp';
+    ta.placeholder='Adicione anotacoes, topicos, resumos...\n\n• Use os botoes acima para formatacao rapida\n• Ex: Exodontia: tecnica de Mead, anestesia local...';
+    ta.value=conteudo;
+    ta.rows=6;
+    ta.style.cssText='resize:vertical;font-size:13px;line-height:1.6;font-family:monospace;';
+    ta.addEventListener('input',function(){
+      materias=materias.map(function(x){return x.id===m.id?Object.assign({},x,{conteudo:ta.value}):x;});
+      schedSave();
+    });
+    body.appendChild(ta);
+
+    // Contador de caracteres
+    var counter=document.createElement('div');
+    counter.style.cssText='font-size:10px;color:var(--mut);text-align:right;margin-top:4px;';
+    counter.textContent=conteudo.length+' caracteres';
+    ta.addEventListener('input',function(){counter.textContent=ta.value.length+' caracteres';});
+    body.appendChild(counter);
+
+    div.appendChild(body);
+
+    // Toggle ao clicar no header
+    header.addEventListener('click',function(){
+      var isOpen=body.style.display==='block';
+      body.style.display=isOpen?'none':'block';
+      var arr=document.getElementById('arr-'+m.id);
+      if(arr) arr.textContent=isOpen?'▼':'▲';
+      materias=materias.map(function(x){return x.id===m.id?Object.assign({},x,{_aberta:!isOpen}):x;});
+    });
+
     lista.appendChild(div);
   });
+
   // Update edu card
   var avg=Math.round(materias.reduce(function(s,m){return s+m.progresso;},0)/materias.length);
   var ec=document.getElementById('hc-edu');
