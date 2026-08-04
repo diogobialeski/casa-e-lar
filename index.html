@@ -583,6 +583,8 @@ onValue(dbRef,function(snap){
   procId=procedimentos.length?Math.max.apply(null,procedimentos.map(function(x){return x.id||0;}))+1:1;
   renderProcedimentos();
 
+  meAtual=d.meAtual||getNomeMes();
+  atualizarTituloMes();
   setTimeout(function(){calcFin();calcReserva();updateHome();},100);
   setStatus('✦ sincronizado');
   isLoading=false;
@@ -596,6 +598,7 @@ window.schedSave=function(){
   saveTimer=setTimeout(function(){
     isSaving=true;
     var payload={
+      meAtual:meAtual||getNomeMes(),
       fin:{
         f_renda:document.getElementById('f-renda').value,
         f_outros:document.getElementById('f-outros').value,
@@ -829,8 +832,27 @@ window.pagarParcela=function(id){
 window.removerParcela=function(id){parcelas=parcelas.filter(function(p){return p.id!==id;});renderParcelas();schedSave();};
 
 // FECHAR MÊS
+// ── MONTH HELPERS ─────────────────────────────────────────────────
+var MESES_NOMES=['Janeiro','Fevereiro','Marco','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+function getProximoMes(mesStr){
+  // mesStr = "Agosto 2026"
+  var parts=mesStr.split(' ');
+  var idx=MESES_NOMES.indexOf(parts[0]);
+  var ano=parseInt(parts[1])||new Date().getFullYear();
+  if(idx===-1) return getNomeMes();
+  var proxIdx=(idx+1)%12;
+  var proxAno=proxIdx===0?ano+1:ano;
+  return MESES_NOMES[proxIdx]+' '+proxAno;
+}
+function atualizarTituloMes(){
+  var el=document.getElementById('fin-titulo');
+  if(el) el.textContent=meAtual||getNomeMes();
+}
+var meAtual=getNomeMes();
+
+// ── FECHAR MÊS ────────────────────────────────────────────────────
 window.fecharMes=function(){
-  var mes=getNomeMes();
+  var mes=meAtual||getNomeMes();
   if(!confirm('Fechar '+mes+' e arquivar no historico?')) return;
   var r=parseFloat(document.getElementById('f-renda').value)||0;
   var ou=parseFloat(document.getElementById('f-outros').value)||0;
@@ -839,40 +861,188 @@ window.fecharMes=function(){
   var rT=r+ou+va+be;
   var tF=fixos.reduce(function(s,f){return s+(parseFloat(f.valor)||0);},0);
   var tX=extras.reduce(function(s,e){return s+(parseFloat(e.valor)||0);},0);
-  historico.unshift({mes:mes,renda:rT,gastos:tF+tX,saldo:rT-(tF+tX),fixos:JSON.parse(JSON.stringify(fixos)),extras:JSON.parse(JSON.stringify(extras)),fechado:new Date().toLocaleDateString('pt-BR')});
-  loadDefaultFixos();loadDefaultExtras();
-  ['f-renda','f-outros','f-vale','f-benef'].forEach(function(id){document.getElementById(id).value='';});
-  document.getElementById('f-renda').value='4900';
+
+  // Salva snapshot completo
+  historico.unshift({
+    mes:mes,
+    renda:rT,gastos:tF+tX,saldo:rT-(tF+tX),
+    fixos:JSON.parse(JSON.stringify(fixos)),
+    extras:JSON.parse(JSON.stringify(extras)),
+    fin:{renda:r,outros:ou,vale:va,benef:be},
+    fechado:new Date().toLocaleDateString('pt-BR')
+  });
+
+  // Avanca para o proximo mes
+  meAtual=getProximoMes(mes);
+  atualizarTituloMes();
+
+  // Mantem fixos (carry-forward), zera extras e renda
+  extras=[];
+  renderExtras();
+  ['f-renda','f-outros','f-vale','f-benef'].forEach(function(id){
+    document.getElementById(id).value='';
+  });
+
   calcFin();schedSave();
-  alert('✦ '+mes+' arquivado!');
+  alert('✦ '+mes+' arquivado!\nAgora em: '+meAtual);
   finTab('historico');
 };
+
+// ── ADICIONAR MÊS RETROATIVO ──────────────────────────────────────
+window.addMesRetroativo=function(){
+  var mes=document.getElementById('retro-mes').value.trim();
+  var renda=parseFloat(document.getElementById('retro-renda').value)||0;
+  var gastos=parseFloat(document.getElementById('retro-gastos').value)||0;
+  var obs=document.getElementById('retro-obs').value.trim();
+  if(!mes) return;
+  historico.push({
+    mes:mes,renda:renda,gastos:gastos,saldo:renda-gastos,
+    fixos:[],extras:[],obs:obs,
+    fechado:'retroativo'
+  });
+  // Ordena por mes
+  historico.sort(function(a,b){
+    var mA=MESES_NOMES.indexOf(a.mes.split(' ')[0]);
+    var mB=MESES_NOMES.indexOf(b.mes.split(' ')[0]);
+    var yA=parseInt(a.mes.split(' ')[1])||0;
+    var yB=parseInt(b.mes.split(' ')[1])||0;
+    if(yA!==yB) return yB-yA;
+    return mB-mA;
+  });
+  ['retro-mes','retro-renda','retro-gastos','retro-obs'].forEach(function(id){
+    var el=document.getElementById(id);if(el)el.value='';
+  });
+  renderHistorico();schedSave();
+};
+
+// ── EDITAR MÊS ARQUIVADO ──────────────────────────────────────────
+window.salvarEdicaoMes=function(i){
+  var h=historico[i];
+  if(!h) return;
+  var r=parseFloat(document.getElementById('ed-renda-'+i).value)||0;
+  var g=parseFloat(document.getElementById('ed-gastos-'+i).value)||0;
+  var obs=document.getElementById('ed-obs-'+i).value||'';
+  h.renda=r;h.gastos=g;h.saldo=r-g;h.obs=obs;
+  historico[i]=h;
+  renderHistorico();schedSave();
+  alert('✦ '+h.mes+' atualizado!');
+};
+
+window.removerMes=function(i){
+  if(!confirm('Remover '+historico[i].mes+' do historico?')) return;
+  historico.splice(i,1);
+  renderHistorico();schedSave();
+};
+
+// ── RENDER HISTORICO ──────────────────────────────────────────────
 function renderHistorico(){
   var v=document.getElementById('hist-vazio');
   var lista=document.getElementById('hist-lista');
   if(!lista) return;
-  if(!historico.length){if(v)v.style.display='block';lista.innerHTML='';return;}
-  if(v) v.style.display='none';
-  lista.innerHTML=historico.map(function(h,i){
-    var pos=h.saldo>=0;
-    return '<div class="card" style="margin-bottom:8px;">'+
-      '<div style="display:flex;justify-content:space-between;align-items:center;cursor:pointer;" onclick="toggleHist('+i+')">'+
-        '<div><div style="font-size:15px;font-weight:600;">'+esc(h.mes)+'</div>'+
-        '<div style="font-size:11px;color:var(--sub);margin-top:2px;">Fechado '+esc(h.fechado||'')+'</div></div>'+
-        '<div style="text-align:right;"><div style="font-size:15px;font-weight:700;color:'+(pos?'var(--fin)':'var(--danger)')+';">'+fmt(h.saldo)+'</div>'+
-        '<div style="font-size:10px;color:var(--sub);">saldo</div></div>'+
-      '</div>'+
-      '<div id="hd-'+i+'" style="display:none;margin-top:12px;padding-top:12px;border-top:1px solid var(--bord);">'+
-        '<div class="g3" style="margin-bottom:10px;">'+
-          '<div class="stat"><div class="stat-l">Renda</div><div class="stat-v" style="color:var(--fin);font-size:12px;">'+fmtK(h.renda)+'</div></div>'+
-          '<div class="stat"><div class="stat-l">Gastos</div><div class="stat-v" style="color:var(--danger);font-size:12px;">'+fmtK(h.gastos)+'</div></div>'+
-          '<div class="stat"><div class="stat-l">Saldo</div><div class="stat-v" style="color:'+(pos?'var(--fin)':'var(--danger)')+';font-size:12px;">'+(pos?'+':'')+fmtK(h.saldo)+'</div></div>'+
+
+  // Card para adicionar mes retroativo
+  var retroHTML='<div class="card" style="margin-bottom:12px;border-color:rgba(63,185,80,.3);">'+
+    '<div class="ctitle" style="color:var(--fin);">+ Adicionar mes retroativo</div>'+
+    '<div style="display:flex;flex-direction:column;gap:8px;">'+
+      '<div class="g2">'+
+        '<div><label class="lbl">Mes (ex: Maio 2026)</label>'+
+          '<select class="inp inp-sm" id="retro-mes">'+
+            '<option value="">Selecione...</option>'+
+            MESES_NOMES.map(function(m){return '<option value="'+m+' 2026">'+m+' 2026</option>';}).join('')+
+          '</select>'+
         '</div>'+
+        '<div><label class="lbl">Renda total (R$)</label><input class="inp inp-sm" type="number" id="retro-renda" placeholder="0"></div>'+
+      '</div>'+
+      '<div><label class="lbl">Gastos totais (R$)</label><input class="inp inp-sm" type="number" id="retro-gastos" placeholder="0"></div>'+
+      '<div><label class="lbl">Observacao (opcional)</label><input class="inp inp-sm" id="retro-obs" placeholder="Ex: mes incompleto, estimativa..."></div>'+
+      '<button class="btn btn-fin" onclick="addMesRetroativo()">+ Adicionar ao historico</button>'+
+    '</div>'+
+  '</div>';
+
+  if(!historico.length){
+    if(v) v.style.display='none';
+    lista.innerHTML=retroHTML+'<div class="empty">Nenhum mes fechado ainda.<br>Use o botao Fechar Mes ou adicione retroativos acima.</div>';
+    return;
+  }
+  if(v) v.style.display='none';
+
+  lista.innerHTML=retroHTML+historico.map(function(h,i){
+    var pos=h.saldo>=0;
+    var isRetro=h.fechado==='retroativo';
+    return '<div class="card" style="margin-bottom:8px;'+(isRetro?'border-color:rgba(227,179,65,.3);':'')+'">'+
+      // Header clicavel
+      '<div style="display:flex;justify-content:space-between;align-items:center;cursor:pointer;margin-bottom:2px;" onclick="toggleHist('+i+')">'+
+        '<div>'+
+          '<div style="font-size:15px;font-weight:600;">'+esc(h.mes)+'</div>'+
+          '<div style="font-size:11px;color:var(--sub);margin-top:2px;">'+
+            (isRetro?'<span style="color:var(--warn);">retroativo</span>':('Fechado '+esc(h.fechado||'')))+
+          '</div>'+
+        '</div>'+
+        '<div style="display:flex;align-items:center;gap:10px;">'+
+          '<div style="text-align:right;">'+
+            '<div style="font-size:15px;font-weight:700;color:'+(pos?'var(--fin)':'var(--danger)')+';">'+fmt(h.saldo)+'</div>'+
+            '<div style="font-size:10px;color:var(--sub);">saldo</div>'+
+          '</div>'+
+          '<span style="color:var(--sub);font-size:12px;" id="arr-h-'+i+'">▼</span>'+
+        '</div>'+
+      '</div>'+
+
+      // Corpo expansivel
+      '<div id="hd-'+i+'" style="display:none;margin-top:12px;padding-top:12px;border-top:1px solid var(--bord);">'+
+
+        // Stats
+        '<div class="g3" style="margin-bottom:12px;">'+
+          '<div class="stat"><div class="stat-l">Renda</div><div class="stat-v" style="color:var(--fin);font-size:12px;">'+fmt(h.renda)+'</div></div>'+
+          '<div class="stat"><div class="stat-l">Gastos</div><div class="stat-v" style="color:var(--danger);font-size:12px;">'+fmt(h.gastos)+'</div></div>'+
+          '<div class="stat"><div class="stat-l">Saldo</div><div class="stat-v" style="color:'+(pos?'var(--fin)':'var(--danger)')+';font-size:12px;">'+(pos?'+':'')+fmt(h.saldo)+'</div></div>'+
+        '</div>'+
+
+        // Obs
+        (h.obs?'<div style="font-size:12px;color:var(--sub);margin-bottom:10px;padding:8px;background:var(--surf2);border-radius:6px;">'+esc(h.obs)+'</div>':'')+
+
+        // Detalhes fixos/extras se existirem
+        (h.fixos&&h.fixos.length?
+          '<div style="font-size:11px;color:var(--sub);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;">Gastos Fixos</div>'+
+          '<div style="margin-bottom:10px;">'+
+          h.fixos.filter(function(f){return parseFloat(f.valor)>0;}).map(function(f){
+            return '<div style="display:flex;justify-content:space-between;font-size:12px;padding:4px 0;border-bottom:1px solid var(--bord);">'+
+              '<span>'+esc(f.desc)+'</span><span style="font-weight:600;color:var(--danger);">'+fmt(f.valor)+'</span></div>';
+          }).join('')+'</div>':'')+
+        (h.extras&&h.extras.length?
+          '<div style="font-size:11px;color:var(--sub);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;">Extras/Cartoes</div>'+
+          '<div style="margin-bottom:10px;">'+
+          h.extras.filter(function(e){return parseFloat(e.valor)>0;}).map(function(e){
+            return '<div style="display:flex;justify-content:space-between;font-size:12px;padding:4px 0;border-bottom:1px solid var(--bord);">'+
+              '<span>'+esc(e.desc)+'</span><span style="font-weight:600;color:var(--danger);">'+fmt(e.valor)+'</span></div>';
+          }).join('')+'</div>':'')+
+
+        // Edicao rapida
+        '<div style="background:var(--surf2);border-radius:8px;padding:12px;margin-top:4px;">'+
+          '<div style="font-size:11px;color:var(--warn);margin-bottom:8px;font-weight:600;">✏️ Corrigir valores</div>'+
+          '<div class="g2" style="margin-bottom:8px;">'+
+            '<div><label class="lbl">Renda total</label><input class="inp inp-sm" type="number" id="ed-renda-'+i+'" value="'+h.renda+'"></div>'+
+            '<div><label class="lbl">Gastos total</label><input class="inp inp-sm" type="number" id="ed-gastos-'+i+'" value="'+h.gastos+'"></div>'+
+          '</div>'+
+          '<div style="margin-bottom:8px;"><label class="lbl">Observacao</label><input class="inp inp-sm" id="ed-obs-'+i+'" value="'+esc(h.obs||'')+'" placeholder="ex: inclui parcela extra..."></div>'+
+          '<div style="display:flex;gap:8px;">'+
+            '<button onclick="salvarEdicaoMes('+i+')" style="background:var(--fin);border:none;border-radius:6px;color:#0D1117;font-size:12px;font-weight:700;padding:8px 14px;flex:1;">Salvar correcao</button>'+
+            '<button onclick="removerMes('+i+')" style="background:rgba(248,81,73,.15);border:1px solid rgba(248,81,73,.3);border-radius:6px;color:var(--danger);font-size:12px;font-weight:600;padding:8px 12px;">Remover</button>'+
+          '</div>'+
+        '</div>'+
+
       '</div>'+
     '</div>';
   }).join('');
 }
-window.toggleHist=function(i){var el=document.getElementById('hd-'+i);if(el)el.style.display=el.style.display==='none'?'block':'none';};
+window.toggleHist=function(i){
+  var el=document.getElementById('hd-'+i);
+  var arr=document.getElementById('arr-h-'+i);
+  if(el){
+    var open=el.style.display==='block';
+    el.style.display=open?'none':'block';
+    if(arr) arr.textContent=open?'▼':'▲';
+  }
+};
 
 // ══ ESTUDOS ═══════════════════════════════════════════════════════
 function loadDefaultMaterias(){
